@@ -29,7 +29,7 @@ const Index = () => {
               </p>
               
               <p>
-                currently, I'm building on a search & rescue startup,{" "}
+                currently, I'm building a search & rescue startup,{" "}
                 <a
                   href="https://wifind.tech"
                   target="_blank"
