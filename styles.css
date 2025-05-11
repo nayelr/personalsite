@@ -1,6 +1,6 @@
 
 body {
-  font-family: 'Crimson Pro', serif;
+  font-family: 'Playfair Display', serif;
   background-color: #2a2a2a;
   color: white;
   margin: 0;
@@ -59,7 +59,7 @@ a:hover {
 }
 
 .social-links a:hover {
-  color: #gray-300;
+  color: #808080;
 }
 
 .social-links svg {
