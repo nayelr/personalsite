@@ -13,8 +13,17 @@
       href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
     <style>
+      body {
+        font-family: "Instrument Serif", serif;
+        background-color: #f5f5f5;
+        color: #2a2a2a;
+        margin: 0;
+        padding: 0;
+        display: block;
+        min-height: 100vh;
+      }
+
       .email-container {
         position: relative;
         display: inline-block;
@@ -22,8 +31,8 @@
 
       .email-tooltip {
         visibility: hidden;
-        background-color: #333;
-        color: white;
+        background-color: #e0e0e0;
+        color: #2a2a2a;
         font-family: "Instrument Serif", serif;
         text-align: center;
         padding: 8px 12px;
@@ -45,8 +54,8 @@
 
       .copied-message {
         visibility: hidden;
-        background-color: #444;
-        color: white;
+        background-color: #d0d0d0;
+        color: #2a2a2a;
         font-family: "Instrument Serif", serif;
         text-align: center;
         padding: 8px 12px;
@@ -65,139 +74,251 @@
         visibility: visible;
         opacity: 1;
       }
+
+      .main-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+        width: 100vw;
+      }
+
+      .content {
+        margin: 0;
+        padding-left: 17vw;
+      }
+
+      h1 {
+        font-size: 4rem;
+        font-weight: bold;
+        margin-bottom: 2.5rem;
+      }
+
+      .bio {
+        font-size: 1.5rem;
+        line-height: 1.7;
+        margin-bottom: 3rem;
+      }
+
+      .bio p {
+        white-space: nowrap;
+        margin-bottom: 1.5rem;
+      }
+
+      a {
+        color: #5b89c9;
+        text-decoration: none;
+        transition: text-decoration 0.3s;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .social-links a {
+        color: #2a2a2a;
+        transition: color 0.3s;
+      }
+
+      .social-links a:hover {
+        color: #666666;
+      }
+
+      .social-links svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .image-container {
+        margin: 0;
+        padding: 0;
+        padding-right: 17vw;
+      }
+
+      .image-container img {
+        border-radius: 0.5rem;
+        display: block;
+        max-height: 65vh;
+        width: auto;
+      }
+
+      .image-caption {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.2rem;
+        color: #666666;
+        margin-top: 1rem;
+        margin-bottom: 0;
+        text-align: center;
+        line-height: 1.4;
+      }
     </style>
   </head>
   <body>
-    <main>
-      <section class="container">
-        <div class="content">
-          <h1>nayel rehman</h1>
-          <div class="bio">
-            <p>i'm a 17-year-old based in northern va</p>
+    <main class="main-container">
+      <div class="content">
+        <h1>nayel rehman</h1>
+        <div class="bio">
+          <p>
+            i'm a 17-year-old at
+            <a href="https://tjhsst.fcps.edu/" target="_blank" rel="noopener">
+              tjhsst
+            </a>
+            in northern virginia
+          </p>
 
-            <p>
-              currently, i'm working on a search & rescue startup,
-              <a href="https://wifind.tech" target="_blank" rel="noopener">
-                wifind
-              </a>
-            </p>
+          <p>
+            currently, i'm working on a search & rescue startup,
+            <a href="https://wifind.tech" target="_blank" rel="noopener">
+              wifind
+            </a>
+          </p>
 
-            <p>
-              previously, i created
-              <a
-                href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4681098"
-                target="_blank"
-                rel="noopener"
-              >
-                namesense
-              </a>
-              , an ai powered assistive device
-            </p>
-
-            <p>
-              i also run
-              <a
-                href="https://cactuscapital.org/"
-                target="_blank"
-                rel="noopener"
-              >
-                cactus capital
-              </a>
-              , a microgrant fund for student builders
-            </p>
-          </div>
-
-          <div class="social-links">
+          <p>
+            previously, i created
             <a
-              href="https://www.instagram.com/_nayelr/"
+              href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4681098"
               target="_blank"
               rel="noopener"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-instagram"
-              >
-                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                <path
-                  d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
-                ></path>
-                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-              </svg>
+              namesense
             </a>
-            <a href="https://x.com/nayelr_/" target="_blank" rel="noopener">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-twitter"
-              >
-                <path
-                  d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"
-                ></path>
-              </svg>
-            </a>
+            , an assistive device for the deaf
+          </p>
+
+          <p>
+            i've recieved grants from
             <a
-              href="https://linkedin.com/in/nayelrehman/"
+              href="https://www.mercatus.org/emergent-ventures"
               target="_blank"
               rel="noopener"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-linkedin"
-              >
-                <path
-                  d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
-                ></path>
-                <rect width="4" height="12" x="2" y="9"></rect>
-                <circle cx="4" cy="4" r="2"></circle>
-              </svg>
+              emergent ventures
             </a>
-            <div class="email-container">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-mail"
-                style="cursor: pointer"
-                onclick="copyEmail()"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-              </svg>
-              <span class="email-tooltip">nayel@cactuscapital.org</span>
-              <span class="copied-message">Copied!</span>
-            </div>
+            and the
+            <a href="https://www.1517fund.com" target="_blank" rel="noopener">
+              1517 fund
+            </a>
+          </p>
+
+          <p>
+            if you're looking for a (micro)grant, check out
+            <a href="https://cactuscapital.org/" target="_blank" rel="noopener">
+              cactus capital
+            </a>
+          </p>
+        </div>
+
+        <div class="social-links">
+          <a
+            href="https://www.instagram.com/_nayelr/"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-instagram"
+            >
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+            </svg>
+          </a>
+          <a href="https://x.com/nayelr_/" target="_blank" rel="noopener">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-twitter"
+            >
+              <path
+                d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"
+              ></path>
+            </svg>
+          </a>
+          <a
+            href="https://linkedin.com/in/nayelrehman/"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-linkedin"
+            >
+              <path
+                d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
+              ></path>
+              <rect width="4" height="12" x="2" y="9"></rect>
+              <circle cx="4" cy="4" r="2"></circle>
+            </svg>
+          </a>
+          <div class="email-container">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-mail"
+              style="cursor: pointer"
+              onclick="copyEmail()"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+            <span class="email-tooltip">nayel@cactuscapital.org</span>
+            <span class="copied-message">Copied!</span>
           </div>
         </div>
-      </section>
+      </div>
+      <div class="image-container">
+        <img src="/zaza.jpg" alt="nayel rehman" />
+        <p class="image-caption">
+          me (right) with
+          <a
+            href="https://en.wikipedia.org/wiki/Zaza_Pachulia"
+            target="_blank"
+            rel="noopener"
+            >zaza pachulia</a
+          >
+          (6'11) at
+          <a href="https://f.inc/" target="_blank" rel="noopener"
+            >founder's inc</a
+          >
+        </p>
+      </div>
     </main>
 
     <script>
