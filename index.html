@@ -158,6 +158,63 @@
         text-align: center;
         line-height: 1.4;
       }
+
+      /* Mobile styles */
+      @media (max-width: 768px) {
+        .main-container {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 2rem 1.5rem;
+          min-height: auto;
+        }
+
+        .content {
+          padding-left: 0;
+          margin-bottom: 2rem;
+          width: 100%;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .bio {
+          font-size: 1.25rem;
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+
+        .bio p {
+          white-space: normal;
+          margin-bottom: 1rem;
+        }
+
+        .social-links {
+          margin-bottom: 1rem;
+        }
+
+        .image-container {
+          padding-right: 0;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .image-container img {
+          max-height: 50vh;
+          max-width: 100%;
+          width: auto;
+          height: auto;
+        }
+
+        .image-caption {
+          font-size: 1rem;
+          margin-top: 0.75rem;
+          padding: 0 1rem;
+        }
+      }
     </style>
   </head>
   <body>
