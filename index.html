@@ -103,6 +103,32 @@
         opacity: 1;
       }
 
+      .name-nayel {
+        cursor: default;
+      }
+
+      .name-tooltip {
+        position: fixed;
+        font-family: "Instrument Serif", serif;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: #2a2a2a;
+        background: rgba(224, 224, 224, 0.92);
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
+      }
+
+      .name-tooltip.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
       .main-container {
         display: flex;
         justify-content: space-between;
@@ -261,7 +287,7 @@
   <body>
     <main class="main-container">
       <div class="content">
-        <h1>nayel rehman</h1>
+        <h1><span class="name-nayel" id="name-nayel">nayel</span> rehman</h1>
         <div class="bio">
           <p>
             i'm an 18-year-old at
@@ -434,7 +460,29 @@
       </div>
     </main>
 
+    <div class="name-tooltip" id="name-tooltip">(like the river)</div>
+
     <script>
+      (function () {
+        var nameEl = document.getElementById("name-nayel");
+        var tooltip = document.getElementById("name-tooltip");
+        var offsetY = -12;
+
+        if (nameEl && tooltip) {
+          nameEl.addEventListener("mouseenter", function () {
+            tooltip.classList.add("visible");
+          });
+          nameEl.addEventListener("mouseleave", function () {
+            tooltip.classList.remove("visible");
+          });
+          nameEl.addEventListener("mousemove", function (e) {
+            tooltip.style.left = e.clientX + "px";
+            tooltip.style.top = e.clientY + offsetY + "px";
+            tooltip.style.transform = "translate(-50%, -100%)";
+          });
+        }
+      })();
+
       function copyEmail() {
         const email = "nayel@nayelr.com";
         const copiedMessage = document.querySelector(".copied-message");
