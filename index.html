@@ -335,6 +335,8 @@
           </p>
         </div>
 
+        <p id="last-visit" style="font-size:1rem; color:#888; margin-bottom:1.5rem; margin-top:0;"></p>
+
         <div class="social-links">
           <a
             href="https://www.instagram.com/_nayelr/"
@@ -482,6 +484,18 @@
           });
         }
       })();
+
+      fetch("https://ipapi.co/json/")
+        .then(r => r.json())
+        .then(data => {
+          const city = data.city;
+          const country = data.country_name;
+          if (city && country) {
+            document.getElementById("last-visit").textContent =
+              "last visit from " + city + ", " + country;
+          }
+        })
+        .catch(() => {});
 
       function copyEmail() {
         const email = "nayel@nayelr.com";
