@@ -485,14 +485,22 @@
         }
       })();
 
-      fetch("https://ipapi.co/json/")
+      function typewrite(el, text, speed) {
+        var i = 0;
+        el.textContent = "";
+        var interval = setInterval(function () {
+          el.textContent += text[i];
+          i++;
+          if (i >= text.length) clearInterval(interval);
+        }, speed);
+      }
+
+      fetch("https://ipwho.is/")
         .then(r => r.json())
         .then(data => {
-          const city = data.city;
-          const country = data.country_name;
-          if (city && country) {
-            document.getElementById("last-visit").textContent =
-              "last visit from " + city + ", " + country;
+          if (data.success && data.city && data.country) {
+            var el = document.getElementById("last-visit");
+            typewrite(el, "last visit from " + data.city + ", " + data.country, 40);
           }
         })
         .catch(() => {});
