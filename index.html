@@ -121,7 +121,9 @@
         z-index: 10;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.2s, visibility 0.2s;
+        transition:
+          opacity 0.2s,
+          visibility 0.2s;
       }
 
       .name-tooltip.visible {
@@ -294,7 +296,6 @@
             <a href="https://tjhsst.fcps.edu/" target="_blank" rel="noopener">
               tjhsst
             </a>
-            in northern virginia
           </p>
 
           <p>
@@ -335,7 +336,15 @@
           </p>
         </div>
 
-        <p id="last-visit" style="font-size:1rem; color:#888; margin-bottom:1.5rem; margin-top:0;"></p>
+        <p
+          id="last-visit"
+          style="
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+          "
+        ></p>
 
         <div class="social-links">
           <a
@@ -496,11 +505,15 @@
       }
 
       fetch("https://ipwho.is/")
-        .then(r => r.json())
-        .then(data => {
+        .then((r) => r.json())
+        .then((data) => {
           if (data.success && data.city && data.country) {
             var el = document.getElementById("last-visit");
-            typewrite(el, "last visit from " + data.city + ", " + data.country, 40);
+            typewrite(
+              el,
+              "last visit from " + data.city + ", " + data.country,
+              40,
+            );
           }
         })
         .catch(() => {});
