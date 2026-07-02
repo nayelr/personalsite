@@ -687,12 +687,22 @@
           );
         }
 
+        var canHover =
+          !window.matchMedia || window.matchMedia("(hover: hover)").matches;
+
         // Hovering a link swaps in its image, and it stays.
+        // On touch devices, tapping swaps the image instead of navigating.
         var hoverLinks = document.querySelectorAll("a[data-hover-img]");
         hoverLinks.forEach(function (link) {
           link.addEventListener("mouseenter", function () {
             showFrom(link);
           });
+          if (!canHover) {
+            link.addEventListener("click", function (e) {
+              e.preventDefault();
+              showFrom(link);
+            });
+          }
         });
 
         // Hovering the name brings the default photo back.
@@ -861,17 +871,28 @@
           ctx.restore();
         }
 
+        var canHover =
+          !window.matchMedia || window.matchMedia("(hover: hover)").matches;
+
         // Money rains in on hover; on leave it stops coming but stays put.
         grants.addEventListener("mouseenter", start);
         grants.addEventListener("mouseleave", function () {
           hovering = false;
         });
+        // On touch devices, tapping grants makes it rain.
+        if (!canHover) {
+          grants.addEventListener("click", function (e) {
+            e.preventDefault();
+            start();
+          });
+        }
 
         // Any other photo swap (a link or the name) clears the money.
         document
           .querySelectorAll("a[data-hover-img]")
           .forEach(function (link) {
             link.addEventListener("mouseenter", stop);
+            if (!canHover) link.addEventListener("click", stop);
           });
         var nameHeading = document.querySelector("h1");
         if (nameHeading) nameHeading.addEventListener("mouseenter", stop);
@@ -883,6 +904,10 @@
           "a[data-hover-img], #grants-link",
         );
         if (!targets.length) return;
+
+        var canHover =
+          !window.matchMedia || window.matchMedia("(hover: hover)").matches;
+        if (hint && !canHover) hint.textContent = "tap the links";
 
         var dismissed = false;
         function dismiss() {
@@ -906,6 +931,7 @@
 
         targets.forEach(function (el) {
           el.addEventListener("mouseenter", dismiss);
+          el.addEventListener("click", dismiss);
         });
         var nameH1 = document.querySelector("h1");
         if (nameH1) nameH1.addEventListener("mouseenter", dismiss);
