@@ -197,13 +197,98 @@
         margin: 0;
         padding: 0;
         padding-right: 17vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .image-frame {
+        position: relative;
+        display: inline-block;
+        line-height: 0;
+      }
+
+      #money-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.5rem;
+        background-color: #ded8cc;
+        box-shadow: inset 0 0 0 2px rgba(42, 42, 42, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+      }
+
+      .image-frame.money-active #money-canvas {
+        opacity: 1;
+      }
+
+      .image-frame.money-active img {
+        opacity: 0 !important;
+      }
+
+      #grants-link {
+        cursor: pointer;
+      }
+
+      @keyframes nudgeShimmer {
+        0%,
+        70%,
+        100% {
+          text-shadow: none;
+        }
+        35% {
+          text-shadow: 0 0 12px rgba(91, 137, 201, 0.65);
+        }
+      }
+
+      .nudge {
+        animation: nudgeShimmer 2.6s ease-in-out infinite;
+      }
+
+      .hover-hint {
+        font-family: "Instrument Serif", serif;
+        font-size: 1rem;
+        font-style: italic;
+        color: #a99f8d;
+        text-align: left;
+        margin: -1.5rem 0 1.5rem;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+        pointer-events: none;
+      }
+
+      .hover-hint.show {
+        opacity: 1;
+        transform: translateY(0);
+        animation: hintBob 2.4s ease-in-out infinite;
+      }
+
+      @keyframes hintBob {
+        0%,
+        100% {
+          transform: translateY(0);
+          text-shadow: none;
+        }
+        50% {
+          transform: translateY(6px);
+          text-shadow: 0 0 10px rgba(91, 137, 201, 0.55);
+        }
       }
 
       .image-container img {
         border-radius: 0.5rem;
         display: block;
-        max-height: 65vh;
+        aspect-ratio: 3 / 4;
+        height: 65vh;
         width: auto;
+        object-fit: cover;
+        transition: opacity 0.15s ease;
       }
 
       .image-caption {
@@ -215,6 +300,7 @@
         text-align: center;
         line-height: 1.4;
         font-weight: 400;
+        white-space: nowrap;
       }
 
       /* Mobile styles */
@@ -271,10 +357,12 @@
         }
 
         .image-container img {
+          aspect-ratio: 3 / 4;
           max-height: 50vh;
           max-width: 100%;
           width: auto;
           height: auto;
+          object-fit: cover;
         }
 
         .image-caption {
@@ -282,6 +370,7 @@
           margin-top: 0.75rem;
           padding: 0 1rem;
           font-weight: 400;
+          white-space: normal;
         }
       }
     </style>
@@ -289,74 +378,128 @@
   <body>
     <main class="main-container">
       <div class="content">
-        <h1><span class="name-nayel" id="name-nayel">nayel</span> rehman</h1>
+        <h1>
+          <span class="name-nayel" id="name-nayel"></span
+          ><span id="name-rest"></span>
+        </h1>
+        <p class="hover-hint" id="hover-hint">hover the links</p>
         <div class="bio">
           <p>
             i'm an 18 y/o studying electrical engineering at
-            <a href="https://ece.illinois.edu/" target="_blank" rel="noopener">
+            <a
+              href="https://ece.illinois.edu/"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/uiuc.jpg"
+              data-hover-caption="i'm not short he's just 6'4"            >
               uiuc
             </a>
           </p>
 
           <p>
             i grew up in northern virginia and went to
-            <a href="https://tjhsst.fcps.edu/" target="_blank" rel="noopener">
+            <a
+              href="https://tjhsst.fcps.edu/"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/tjhsst.jpg"
+              data-hover-caption="both cords are from my brother"            >
               tjhsst
             </a>
           </p>
 
           <p>
-            currently building
-            <a href="https://wifind.tech" target="_blank" rel="noopener">
-              wifind
-            </a>
-            , a search and rescue device
-          </p>
-
-          <p>
-            we've won grants from
+            currently i'm securing america's food supply @
             <a
-              href="https://www.mercatus.org/emergent-ventures"
+              href="https://orchard.ai"
               target="_blank"
               rel="noopener"
+              data-hover-img="./public/orchard.jpg"
+              data-hover-caption="at orchard sf office with charlie (my boss)"
             >
-              emergent ventures
-            </a>
-            and the
-            <a href="https://www.1517fund.com" target="_blank" rel="noopener">
-              1517 fund
+              orchard
             </a>
           </p>
 
           <p>
-            i've also made
-            <a href="https://simulatesar.com/" target="_blank" rel="noopener">
-              simulateSAR
+            previously i built a
+            <a
+              href="https://wifind.tech"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/wifind.jpg"
+              data-hover-caption="nobody wanted our business cards"
+            >
+              disaster rescue device
             </a>
-            , used by 10+ teams nationwide
+            at
+            <a
+              href="https://f.inc/"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/zaza.jpg"
+              data-hover-caption="with zaza pachulia (2x nba champion, 6'11) at founders, inc."
+            >
+              founders, inc.
+            </a>
           </p>
 
           <p>
-            if you're looking for a (micro)grant, check out
-            <a href="https://cactuscapital.org/" target="_blank" rel="noopener">
-              cactus capital
+            i'm a
+            <a
+              href="https://chatgpt.com/futures/#wi-find"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/sam.jpg"
+              data-hover-caption="one of the greatest minds of our generation (left) with sam altman"
+            >
+              chatgpt futures honoree
+            </a>
+            &
+            <a
+              href="https://conrad.spacecenter.org/2025-winners/"
+              target="_blank"
+              rel="noopener"
+              data-hover-img="./public/conrad.jpg"
+              data-hover-caption="at space center houston with nancy conrad"
+            >
+              pete conrad scholar
+            </a>
+          </p>
+
+          <p>
+            i've received over
+            <a id="grants-link" data-tip="from emergent ventures, openai, & the 1517 fund">$50k in grants</a>
+            for my projects
+          </p>
+
+          <p>
+            i also enjoy
+            <a
+              href="#"
+              data-hover-img="./public/travel.jpg"
+              data-hover-caption="lake matheson, new zealand"
+              data-tip="26 countries and counting"
+              onclick="return false;"
+            >
+              traveling with family
+            </a>
+            and
+            <a
+              href="#"
+              data-hover-img="./public/gym.jpg"
+              data-hover-caption="bumping taylor swift"
+              data-tip="285lbs bench press (315 soon 🤞)"
+              onclick="return false;"
+            >
+              weightlifting
             </a>
           </p>
         </div>
 
-        <p
-          id="last-visit"
-          style="
-            font-size: 1rem;
-            color: #888;
-            margin-bottom: 1.5rem;
-            margin-top: 0;
-          "
-        ></p>
-
         <div class="social-links">
           <a
-            href="https://www.instagram.com/_nayelr/"
+            href="https://www.instagram.com/nayelrmn/"
             target="_blank"
             rel="noopener"
           >
@@ -377,7 +520,7 @@
               <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
             </svg>
           </a>
-          <a href="https://x.com/nayelr_/" target="_blank" rel="noopener">
+          <a href="https://x.com/nayelrmn" target="_blank" rel="noopener">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -462,27 +605,40 @@
         </div>
       </div>
       <div class="image-container">
-        <img src="./public/zaza.jpg" alt="nayel rehman" />
-        <p class="image-caption">
-          me (right) with
-          <a
-            href="https://www.youtube.com/watch?v=nKar7Tx14Us&pp=ygUNemF6YSBwYWNodWxpYQ%3D%3D"
-            target="_blank"
-            rel="noopener"
-            >zaza pachulia</a
-          >
-          (6'11) at
-          <a href="https://f.inc/" target="_blank" rel="noopener"
-            >founders, inc.</a
-          >
+        <div class="image-frame" id="image-frame">
+          <img id="profile-img" src="./public/claude.jpg" alt="nayel rehman" />
+          <canvas id="money-canvas"></canvas>
+        </div>
+        <p class="image-caption" id="profile-caption">
+          waiting on claude code
         </p>
       </div>
     </main>
 
     <div class="name-tooltip" id="name-tooltip">pronounced like the river</div>
+    <div class="name-tooltip" id="hover-tip"></div>
 
     <script>
       (function () {
+        function typewrite(el, text, speed, done) {
+          var i = 0;
+          el.textContent = "";
+          var interval = setInterval(function () {
+            el.textContent += text[i];
+            i++;
+            if (i >= text.length) {
+              clearInterval(interval);
+              if (done) done();
+            }
+          }, speed);
+        }
+
+        var nameNayel = document.getElementById("name-nayel");
+        var nameRest = document.getElementById("name-rest");
+        typewrite(nameNayel, "nayel", 90, function () {
+          typewrite(nameRest, " rehman", 90);
+        });
+
         var nameEl = document.getElementById("name-nayel");
         var tooltip = document.getElementById("name-tooltip");
         var offsetY = -12;
@@ -502,29 +658,279 @@
         }
       })();
 
-      function typewrite(el, text, speed) {
-        var i = 0;
-        el.textContent = "";
-        var interval = setInterval(function () {
-          el.textContent += text[i];
-          i++;
-          if (i >= text.length) clearInterval(interval);
-        }, speed);
-      }
+      (function () {
+        var img = document.getElementById("profile-img");
+        var caption = document.getElementById("profile-caption");
+        if (!img || !caption) return;
 
-      fetch("https://ipwho.is/")
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success && data.city && data.country) {
-            var el = document.getElementById("last-visit");
-            typewrite(
-              el,
-              "last visit from " + data.city + ", " + data.country,
-              40,
-            );
+        var defaultImg = img.getAttribute("src");
+        var defaultCaption = caption.innerHTML;
+        var revertTimeout = null;
+        var shownSrc = defaultImg;
+
+        function setImage(src, captionHtml) {
+          if (src === shownSrc) return; // already showing — no flash
+          shownSrc = src;
+          clearTimeout(revertTimeout);
+          img.style.opacity = 0;
+          revertTimeout = setTimeout(function () {
+            img.setAttribute("src", src);
+            caption.innerHTML = captionHtml;
+            img.style.opacity = 1;
+          }, 150);
+        }
+
+        function showFrom(el) {
+          setImage(
+            el.getAttribute("data-hover-img"),
+            el.getAttribute("data-hover-caption") || "",
+          );
+        }
+
+        // Hovering a link swaps in its image, and it stays.
+        var hoverLinks = document.querySelectorAll("a[data-hover-img]");
+        hoverLinks.forEach(function (link) {
+          link.addEventListener("mouseenter", function () {
+            showFrom(link);
+          });
+        });
+
+        // Hovering the name brings the default photo back.
+        var nameHeading = document.querySelector("h1");
+        if (nameHeading) {
+          nameHeading.addEventListener("mouseenter", function () {
+            setImage(defaultImg, defaultCaption);
+          });
+        }
+      })();
+
+      (function () {
+        var frame = document.getElementById("image-frame");
+        var canvas = document.getElementById("money-canvas");
+        var grants = document.getElementById("grants-link");
+        var img = document.getElementById("profile-img");
+        var caption = document.getElementById("profile-caption");
+        if (!frame || !canvas || !grants) return;
+
+        var ctx = canvas.getContext("2d");
+        var BILL_W = 46;
+        var BILL_H = 20;
+        var COLS = 20;
+        var bills, pile, t, W, H;
+        var raf = null;
+        var savedCaption = null;
+        var hovering = false;
+
+        var figure = new Image();
+        figure.src = "./public/moneyman.png";
+
+        function start() {
+          hovering = true;
+          if (raf) return; // already running — just resume spawning
+          var rect = img.getBoundingClientRect();
+          var dpr = window.devicePixelRatio || 1;
+          W = rect.width;
+          H = rect.height;
+          canvas.width = W * dpr;
+          canvas.height = H * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          bills = [];
+          pile = new Array(COLS).fill(0);
+          t = 0;
+          savedCaption = caption.innerHTML;
+          caption.innerHTML = "&nbsp;";
+          frame.classList.add("money-active");
+          if (!raf) raf = requestAnimationFrame(tick);
+        }
+
+        function stop() {
+          hovering = false;
+          frame.classList.remove("money-active");
+          if (savedCaption !== null) {
+            caption.innerHTML = savedCaption;
+            savedCaption = null;
           }
-        })
-        .catch(() => {});
+          if (raf) {
+            cancelAnimationFrame(raf);
+            raf = null;
+          }
+        }
+
+        function spawn() {
+          bills.push({
+            x: Math.random() * (W - BILL_W),
+            y: -BILL_H - Math.random() * 60,
+            vx: (Math.random() - 0.5) * 3,
+            vy: 0.5 + Math.random() * 1.5,
+            rot: (Math.random() - 0.5) * 0.8,
+            vr: (Math.random() - 0.5) * 0.08,
+            settled: false,
+            back: Math.random() < 0.5,
+          });
+        }
+
+        function tick() {
+          t++;
+          var maxPile = Math.max.apply(null, pile);
+          if (hovering && t % 2 === 0 && maxPile < H * 0.94 && bills.length < 900) {
+            spawn();
+          }
+
+          ctx.clearRect(0, 0, W, H);
+          for (var i = 0; i < bills.length; i++) {
+            var b = bills[i];
+            if (!b.settled) {
+              // flutter and gusts, ticket-machine style
+              b.vx +=
+                Math.sin(t * 0.05 + b.y * 0.02) * 0.06 +
+                (Math.random() - 0.5) * 0.14;
+              b.vy += 0.06;
+              if (Math.random() < 0.012) b.vy -= 1 + Math.random() * 2;
+              b.vx *= 0.98;
+              b.vy *= 0.99;
+              b.x += b.vx;
+              b.y += b.vy;
+              b.rot += b.vr + Math.sin(t * 0.1 + i) * 0.01;
+
+              if (b.x < 0) {
+                b.x = 0;
+                b.vx = Math.abs(b.vx) * 0.6;
+              }
+              if (b.x > W - BILL_W) {
+                b.x = W - BILL_W;
+                b.vx = -Math.abs(b.vx) * 0.6;
+              }
+
+              var c = Math.max(
+                0,
+                Math.min(
+                  COLS - 1,
+                  Math.floor(((b.x + BILL_W / 2) / W) * COLS),
+                ),
+              );
+              var groundY = H - pile[c] - BILL_H;
+              if (b.y >= groundY) {
+                b.y = groundY;
+                b.settled = true;
+                b.rot = (Math.random() - 0.5) * 0.35;
+                pile[c] += BILL_H * 0.38;
+                if (c > 0) pile[c - 1] = Math.max(pile[c - 1], pile[c] - BILL_H);
+                if (c < COLS - 1)
+                  pile[c + 1] = Math.max(pile[c + 1], pile[c] - BILL_H);
+              }
+            }
+          }
+
+          // layered draw: bills behind him, then him, then bills in front
+          for (var j = 0; j < bills.length; j++) {
+            if (bills[j].back) drawBill(bills[j]);
+          }
+          drawFigure();
+          for (var k = 0; k < bills.length; k++) {
+            if (!bills[k].back) drawBill(bills[k]);
+          }
+          raf = requestAnimationFrame(tick);
+        }
+
+        function drawFigure() {
+          if (!figure.complete || !figure.naturalWidth) return;
+          var fh = H * 0.68;
+          var fw = fh * (figure.naturalWidth / figure.naturalHeight);
+          ctx.drawImage(figure, (W - fw) / 2, H - fh, fw, fh);
+        }
+
+        function drawBill(b) {
+          ctx.save();
+          ctx.translate(b.x + BILL_W / 2, b.y + BILL_H / 2);
+          ctx.rotate(b.rot);
+          ctx.fillStyle = "#85bb65";
+          ctx.fillRect(-BILL_W / 2, -BILL_H / 2, BILL_W, BILL_H);
+          ctx.strokeStyle = "#4e7a3a";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(
+            -BILL_W / 2 + 2,
+            -BILL_H / 2 + 2,
+            BILL_W - 4,
+            BILL_H - 4,
+          );
+          ctx.fillStyle = "#2f5426";
+          ctx.font = "bold 13px 'Instrument Serif', serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("$", 0, 1);
+          ctx.restore();
+        }
+
+        // Money rains in on hover; on leave it stops coming but stays put.
+        grants.addEventListener("mouseenter", start);
+        grants.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+
+        // Any other photo swap (a link or the name) clears the money.
+        document
+          .querySelectorAll("a[data-hover-img]")
+          .forEach(function (link) {
+            link.addEventListener("mouseenter", stop);
+          });
+        var nameHeading = document.querySelector("h1");
+        if (nameHeading) nameHeading.addEventListener("mouseenter", stop);
+      })();
+
+      (function () {
+        var hint = document.getElementById("hover-hint");
+        var targets = document.querySelectorAll(
+          "a[data-hover-img], #grants-link",
+        );
+        if (!targets.length) return;
+
+        var dismissed = false;
+        function dismiss() {
+          if (dismissed) return;
+          dismissed = true;
+          targets.forEach(function (el) {
+            el.classList.remove("nudge");
+          });
+          if (hint) hint.classList.remove("show");
+        }
+
+        // After the name finishes typing, ripple a shimmer down the links.
+        setTimeout(function () {
+          if (dismissed) return;
+          targets.forEach(function (el, i) {
+            el.style.animationDelay = i * 0.18 + "s";
+            el.classList.add("nudge");
+          });
+          if (hint) hint.classList.add("show");
+        }, 1600);
+
+        targets.forEach(function (el) {
+          el.addEventListener("mouseenter", dismiss);
+        });
+        var nameH1 = document.querySelector("h1");
+        if (nameH1) nameH1.addEventListener("mouseenter", dismiss);
+      })();
+
+      (function () {
+        var tip = document.getElementById("hover-tip");
+        if (!tip) return;
+        var offsetY = -12;
+
+        document.querySelectorAll("[data-tip]").forEach(function (el) {
+          el.addEventListener("mouseenter", function () {
+            tip.textContent = el.getAttribute("data-tip");
+            tip.classList.add("visible");
+          });
+          el.addEventListener("mouseleave", function () {
+            tip.classList.remove("visible");
+          });
+          el.addEventListener("mousemove", function (e) {
+            tip.style.left = e.clientX + "px";
+            tip.style.top = e.clientY + offsetY + "px";
+            tip.style.transform = "translate(-50%, -100%)";
+          });
+        });
+      })();
 
       function copyEmail() {
         const email = "nayel@nayelr.com";
