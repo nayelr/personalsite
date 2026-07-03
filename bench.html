@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>285 lb bench</title>
+    <meta name="description" content="the bench press" />
+    <link rel="icon" href="/public/favicon.ico" type="image/x-icon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #e8e4dc;
+        font-family: "Instrument Serif", serif;
+        color: #2a2a2a;
+      }
+
+      .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .top-bar a {
+        pointer-events: auto;
+        color: #5b89c9;
+        text-decoration: none;
+        font-size: 1.2rem;
+      }
+
+      .top-bar a:hover {
+        text-decoration: underline;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        font-weight: 400;
+        margin: 0;
+        text-align: right;
+      }
+
+      h1 .count {
+        font-weight: 700;
+      }
+
+      .breakdown {
+        position: fixed;
+        top: 4.6rem;
+        right: 2rem;
+        font-size: 1rem;
+        color: #a99f8d;
+        font-style: italic;
+        text-align: right;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      #scene {
+        position: fixed;
+        inset: 0;
+      }
+
+      .hint {
+        position: fixed;
+        bottom: 1.2rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-style: italic;
+        font-size: 1rem;
+        color: #a99f8d;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      @media (max-width: 768px) {
+        .top-bar {
+          padding: 1rem 1.25rem;
+        }
+
+        h1 {
+          font-size: 1.2rem;
+        }
+
+        .top-bar a {
+          font-size: 1rem;
+        }
+
+        .breakdown {
+          top: 3.4rem;
+          right: 1.25rem;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <a href="./index.html">&larr; back</a>
+      <h1><span class="count">285</span> lb bench press</h1>
+    </div>
+    <p class="breakdown">bar (45) + 4&times;45 + 2&times;25 + 2&times;5</p>
+
+    <div id="scene"></div>
+    <p class="hint">drag to spin</p>
+
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script>
+      (function () {
+        var PAPER = 0xe8e4dc;
+        var INK = 0x2a2a2a;
+        var BLUE = 0x5b89c9;
+        var STEEL = 0xb9b5ad;
+        var IRON = 0x3d3d3d;
+
+        var container = document.getElementById("scene");
+        var scene = new THREE.Scene();
+        scene.background = new THREE.Color(PAPER);
+
+        var camera = new THREE.PerspectiveCamera(
+          40,
+          window.innerWidth / window.innerHeight,
+          1,
+          2000,
+        );
+
+        // pull back further on narrow screens so the whole bench fits
+        function fitCamera() {
+          var aspect = window.innerWidth / window.innerHeight;
+          camera.aspect = aspect;
+          var dist = Math.max(330, 340 / aspect);
+          camera.position.set(0, 150, dist);
+          camera.lookAt(0, 55, 0);
+          camera.updateProjectionMatrix();
+        }
+        fitCamera();
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio || 1);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // lights
+        scene.add(new THREE.HemisphereLight(0xffffff, 0xcfc9bc, 0.85));
+        var sun = new THREE.DirectionalLight(0xffffff, 0.7);
+        sun.position.set(120, 260, 160);
+        sun.castShadow = true;
+        sun.shadow.mapSize.set(2048, 2048);
+        sun.shadow.camera.left = -200;
+        sun.shadow.camera.right = 200;
+        sun.shadow.camera.top = 200;
+        sun.shadow.camera.bottom = -200;
+        scene.add(sun);
+
+        // everything spins together
+        var rig = new THREE.Group();
+        scene.add(rig);
+
+        // soft floor
+        var floor = new THREE.Mesh(
+          new THREE.CircleGeometry(240, 64),
+          new THREE.ShadowMaterial({ opacity: 0.18 }),
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        rig.add(floor);
+
+        var floorDisc = new THREE.Mesh(
+          new THREE.CircleGeometry(240, 64),
+          new THREE.MeshLambertMaterial({ color: 0xdfdacf }),
+        );
+        floorDisc.rotation.x = -Math.PI / 2;
+        floorDisc.position.y = -0.2;
+        rig.add(floorDisc);
+
+        function mesh(geo, color, parent) {
+          var m = new THREE.Mesh(
+            geo,
+            new THREE.MeshLambertMaterial({ color: color }),
+          );
+          m.castShadow = true;
+          m.receiveShadow = true;
+          (parent || rig).add(m);
+          return m;
+        }
+
+        var FRAME = 0x8a8378;
+
+        // ---- bench (runs along z, head at -z under the rack) ----
+        var pad = mesh(new THREE.BoxGeometry(32, 7, 125), BLUE);
+        pad.position.set(0, 45, 20);
+
+        var spine = mesh(new THREE.BoxGeometry(12, 5, 110), FRAME);
+        spine.position.set(0, 38, 20);
+
+        [-25, 65].forEach(function (z) {
+          var leg = mesh(new THREE.BoxGeometry(10, 36, 8), FRAME);
+          leg.position.set(0, 18, z);
+          var foot = mesh(new THREE.BoxGeometry(46, 5, 10), FRAME);
+          foot.position.set(0, 2.5, z);
+        });
+
+        // ---- rack uprights with j-hooks ----
+        [-1, 1].forEach(function (s) {
+          var upright = mesh(new THREE.BoxGeometry(9, 125, 9), FRAME);
+          upright.position.set(s * 55, 62.5, -55);
+          var base = mesh(new THREE.BoxGeometry(14, 5, 60), FRAME);
+          base.position.set(s * 55, 2.5, -45);
+          // j-hook: small shelf the bar rests in
+          var hook = mesh(new THREE.BoxGeometry(9, 4, 16), INK);
+          hook.position.set(s * 55, 106, -49);
+          var lip = mesh(new THREE.BoxGeometry(9, 10, 4), INK);
+          lip.position.set(s * 55, 111, -43);
+        });
+
+        // ---- barbell, racked ----
+        var BAR_Y = 112;
+        var BAR_Z = -49;
+        var bar = new THREE.Group();
+        bar.position.set(0, BAR_Y, BAR_Z);
+        rig.add(bar);
+
+        function cyl(rad, len, color, x, parent) {
+          var g = new THREE.CylinderGeometry(rad, rad, len, 48);
+          var m = mesh(g, color, parent || bar);
+          m.rotation.z = Math.PI / 2;
+          m.position.x = x;
+          return m;
+        }
+
+        // shaft
+        cyl(1.5, 152, STEEL, 0);
+
+        [-1, 1].forEach(function (s) {
+          // sleeve
+          cyl(2.6, 44, STEEL, s * 98);
+          // inner collar shoulder
+          cyl(4.6, 3, STEEL, s * 77.5);
+
+          // plates, inner to outer: 45, 45, 25, 5
+          var plates = [
+            { r: 22.5, t: 4.0, c: IRON }, // 45
+            { r: 22.5, t: 4.0, c: IRON }, // 45
+            { r: 14.0, t: 3.4, c: 0x555550 }, // 25
+            { r: 9.5, t: 2.4, c: 0x6e6e68 }, // 5
+          ];
+          var x = 81;
+          plates.forEach(function (p) {
+            x += p.t / 2;
+            var plate = cyl(p.r, p.t, p.c, s * x);
+            // thin rim accent
+            var rim = cyl(p.r + 0.01, p.t * 0.35, INK, s * x);
+            x += p.t / 2 + 0.8;
+          });
+
+          // spring collar in site blue
+          x += 1.4;
+          cyl(3.4, 2.8, BLUE, s * x);
+        });
+
+        // ---- interaction: yaw drag + gentle auto-rotate ----
+        var yaw = 0.6;
+        var autoSpin = true;
+        var dragging = false;
+        var lastX = 0;
+
+        renderer.domElement.style.touchAction = "none";
+        renderer.domElement.addEventListener("pointerdown", function (e) {
+          dragging = true;
+          autoSpin = false;
+          lastX = e.clientX;
+        });
+        window.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          yaw += (e.clientX - lastX) * 0.008;
+          lastX = e.clientX;
+        });
+        window.addEventListener("pointerup", function () {
+          dragging = false;
+          setTimeout(function () {
+            autoSpin = true;
+          }, 2500);
+        });
+
+        window.addEventListener("resize", function () {
+          fitCamera();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+          requestAnimationFrame(animate);
+          if (autoSpin && !dragging) yaw += 0.0035;
+          rig.rotation.y = yaw;
+          renderer.render(scene, camera);
+        }
+        animate();
+      })();
+    </script>
+  </body>
+</html>
