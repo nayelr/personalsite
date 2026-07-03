@@ -230,11 +230,12 @@
           upright.position.set(s * 55, 62.5, -55);
           var base = mesh(new THREE.BoxGeometry(14, 5, 60), FRAME);
           base.position.set(s * 55, 2.5, -45);
-          // j-hook: small shelf the bar rests in
-          var hook = mesh(new THREE.BoxGeometry(9, 4, 16), INK);
-          hook.position.set(s * 55, 106, -49);
-          var lip = mesh(new THREE.BoxGeometry(9, 10, 4), INK);
-          lip.position.set(s * 55, 111, -43);
+          // j-hook: small shelf the bar rests in — thinner than the
+          // upright and only just touching it, so the faces don't z-fight
+          var hook = mesh(new THREE.BoxGeometry(6.5, 4, 14), INK);
+          hook.position.set(s * 55, 106, -44);
+          var lip = mesh(new THREE.BoxGeometry(6.5, 10, 4), INK);
+          lip.position.set(s * 55, 111, -39);
         });
 
         // ---- barbell, racked ----
