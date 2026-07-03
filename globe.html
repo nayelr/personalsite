@@ -130,40 +130,39 @@
     <script src="https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js"></script>
     <script>
       (function () {
-        // visit order matters — it shows in the tooltip
         var visited = {
-          "United States of America": { n: 1, label: "usa" },
-          Mexico: { n: 2, label: "mexico" },
-          Canada: { n: 3, label: "canada" },
-          "Costa Rica": { n: 4, label: "costa rica" },
-          France: { n: 5, label: "france" },
-          Italy: { n: 6, label: "italy" },
-          "United Kingdom": { n: 7, label: "england & scotland" },
-          Malta: { n: 9, label: "malta" },
-          Turkey: { n: 10, label: "turkey" },
-          Malaysia: { n: 11, label: "malaysia" },
-          Portugal: { n: 12, label: "portugal" },
-          Spain: { n: 13, label: "spain" },
-          Morocco: { n: 14, label: "morocco" },
-          Jordan: { n: 15, label: "jordan" },
-          Egypt: { n: 16, label: "egypt" },
-          "Saudi Arabia": { n: 17, label: "saudi arabia" },
-          "United Arab Emirates": { n: 18, label: "uae" },
-          Germany: { n: 19, label: "germany" },
-          Pakistan: { n: 20, label: "pakistan" },
-          Singapore: { n: 21, label: "singapore" },
-          Japan: { n: 22, label: "japan" },
-          Fiji: { n: 23, label: "fiji" },
-          "New Zealand": { n: 24, label: "new zealand" },
-          Switzerland: { n: 25, label: "switzerland" },
-          Vatican: { n: 26, label: "vatican city" },
+          "United States of America": { label: "usa" },
+          Mexico: { label: "mexico" },
+          Canada: { label: "canada" },
+          "Costa Rica": { label: "costa rica" },
+          France: { label: "france" },
+          Italy: { label: "italy" },
+          "United Kingdom": { label: "england & scotland" },
+          Malta: { label: "malta" },
+          Turkey: { label: "turkey" },
+          Malaysia: { label: "malaysia" },
+          Portugal: { label: "portugal" },
+          Spain: { label: "spain" },
+          Morocco: { label: "morocco" },
+          Jordan: { label: "jordan" },
+          Egypt: { label: "egypt" },
+          "Saudi Arabia": { label: "saudi arabia" },
+          "United Arab Emirates": { label: "uae" },
+          Germany: { label: "germany" },
+          Pakistan: { label: "pakistan" },
+          Singapore: { label: "singapore" },
+          Japan: { label: "japan" },
+          Fiji: { label: "fiji" },
+          "New Zealand": { label: "new zealand" },
+          Switzerland: { label: "switzerland" },
+          Vatican: { label: "vatican city" },
         };
 
         // tiny countries missing from the 110m map — mark with pulsing rings
         var tinySpots = [
-          { lat: 35.9, lng: 14.5, name: "malta", n: 9 },
-          { lat: 1.35, lng: 103.82, name: "singapore", n: 21 },
-          { lat: 41.9, lng: 12.45, name: "vatican city", n: 26 },
+          { lat: 35.9, lng: 14.5, name: "malta" },
+          { lat: 1.35, lng: 103.82, name: "singapore" },
+          { lat: 41.9, lng: 12.45, name: "vatican city" },
         ];
 
         var BLUE = "#5b89c9";
@@ -191,8 +190,13 @@
           .then(function (countries) {
             document.getElementById("loading").style.display = "none";
 
+            // drop antarctica — it z-fights at the pole and nobody lives there
+            var features = countries.features.filter(function (d) {
+              return d.properties.ADMIN !== "Antarctica";
+            });
+
             globe
-              .polygonsData(countries.features)
+              .polygonsData(features)
               .polygonCapColor(function (d) {
                 return visited[d.properties.ADMIN] ? BLUE : "#e2ddd2";
               })
@@ -203,23 +207,17 @@
                 return "rgba(42, 42, 42, 0.25)";
               })
               .polygonAltitude(function (d) {
-                return visited[d.properties.ADMIN] ? 0.012 : 0.004;
+                return visited[d.properties.ADMIN] ? 0.02 : 0.008;
               })
               .polygonLabel(function (d) {
                 var v = visited[d.properties.ADMIN];
                 if (!v) return "";
-                return (
-                  '<div class="globe-tooltip">' +
-                  v.n +
-                  ". " +
-                  v.label +
-                  "</div>"
-                );
+                return '<div class="globe-tooltip">' + v.label + "</div>";
               })
               .onPolygonHover(function (d) {
                 globe.polygonAltitude(function (p) {
                   if (p === d && visited[p.properties.ADMIN]) return 0.06;
-                  return visited[p.properties.ADMIN] ? 0.012 : 0.004;
+                  return visited[p.properties.ADMIN] ? 0.02 : 0.008;
                 });
               })
               .polygonsTransitionDuration(200);
@@ -244,13 +242,7 @@
               .pointAltitude(0.015)
               .pointRadius(0.35)
               .pointLabel(function (d) {
-                return (
-                  '<div class="globe-tooltip">' +
-                  d.n +
-                  ". " +
-                  d.name +
-                  "</div>"
-                );
+                return '<div class="globe-tooltip">' + d.name + "</div>";
               });
           })
           .catch(function () {
