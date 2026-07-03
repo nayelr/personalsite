@@ -190,13 +190,8 @@
           .then(function (countries) {
             document.getElementById("loading").style.display = "none";
 
-            // drop antarctica — it z-fights at the pole and nobody lives there
-            var features = countries.features.filter(function (d) {
-              return d.properties.ADMIN !== "Antarctica";
-            });
-
             globe
-              .polygonsData(features)
+              .polygonsData(countries.features)
               .polygonCapColor(function (d) {
                 return visited[d.properties.ADMIN] ? BLUE : "#e2ddd2";
               })
@@ -207,7 +202,7 @@
                 return "rgba(42, 42, 42, 0.25)";
               })
               .polygonAltitude(function (d) {
-                return visited[d.properties.ADMIN] ? 0.02 : 0.008;
+                return visited[d.properties.ADMIN] ? 0.03 : 0.015;
               })
               .polygonLabel(function (d) {
                 var v = visited[d.properties.ADMIN];
@@ -216,8 +211,8 @@
               })
               .onPolygonHover(function (d) {
                 globe.polygonAltitude(function (p) {
-                  if (p === d && visited[p.properties.ADMIN]) return 0.06;
-                  return visited[p.properties.ADMIN] ? 0.02 : 0.008;
+                  if (p === d && visited[p.properties.ADMIN]) return 0.07;
+                  return visited[p.properties.ADMIN] ? 0.03 : 0.015;
                 });
               })
               .polygonsTransitionDuration(200);
