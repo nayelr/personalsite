@@ -484,11 +484,11 @@
           <p>
             i also enjoy
             <a
-              href="#"
+              href="./globe.html"
               data-hover-img="./public/travel.jpg"
               data-hover-caption="lake matheson, new zealand"
               data-tip="26 countries and counting"
-              onclick="return false;"
+              data-allow-nav="true"
             >
               traveling with family
             </a>
@@ -705,7 +705,7 @@
           link.addEventListener("mouseenter", function () {
             showFrom(link);
           });
-          if (!canHover) {
+          if (!canHover && !link.getAttribute("data-allow-nav")) {
             link.addEventListener("click", function (e) {
               e.preventDefault();
               showFrom(link);

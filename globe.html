@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>26 countries</title>
+    <meta name="description" content="countries i've visited" />
+    <link rel="icon" href="/public/favicon.ico" type="image/x-icon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #e8e4dc;
+        font-family: "Instrument Serif", serif;
+        color: #2a2a2a;
+      }
+
+      .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .top-bar a {
+        pointer-events: auto;
+        color: #5b89c9;
+        text-decoration: none;
+        font-size: 1.2rem;
+      }
+
+      .top-bar a:hover {
+        text-decoration: underline;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        font-weight: 400;
+        margin: 0;
+        text-align: right;
+      }
+
+      h1 .count {
+        font-weight: 700;
+      }
+
+      #globe {
+        position: fixed;
+        inset: 0;
+      }
+
+      .hint {
+        position: fixed;
+        bottom: 1.2rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-style: italic;
+        font-size: 1rem;
+        color: #a99f8d;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .globe-tooltip {
+        font-family: "Instrument Serif", serif;
+        font-size: 1rem;
+        background: rgba(224, 224, 224, 0.92);
+        color: #2a2a2a;
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+      }
+
+      #loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: italic;
+        color: #a99f8d;
+        font-size: 1.1rem;
+        z-index: 5;
+      }
+
+      @media (max-width: 768px) {
+        .top-bar {
+          padding: 1rem 1.25rem;
+        }
+
+        h1 {
+          font-size: 1.2rem;
+        }
+
+        .top-bar a {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <a href="./index.html">&larr; back</a>
+      <h1><span class="count">26</span> countries and counting</h1>
+    </div>
+
+    <div id="globe"></div>
+    <div id="loading">spinning up the globe...</div>
+    <p class="hint">drag to spin &middot; hover a blue country</p>
+
+    <script src="https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js"></script>
+    <script>
+      (function () {
+        // visit order matters — it shows in the tooltip
+        var visited = {
+          "United States of America": { n: 1, label: "usa" },
+          Mexico: { n: 2, label: "mexico" },
+          Canada: { n: 3, label: "canada" },
+          "Costa Rica": { n: 4, label: "costa rica" },
+          France: { n: 5, label: "france" },
+          Italy: { n: 6, label: "italy" },
+          "United Kingdom": { n: 7, label: "england & scotland" },
+          Malta: { n: 9, label: "malta" },
+          Turkey: { n: 10, label: "turkey" },
+          Malaysia: { n: 11, label: "malaysia" },
+          Portugal: { n: 12, label: "portugal" },
+          Spain: { n: 13, label: "spain" },
+          Morocco: { n: 14, label: "morocco" },
+          Jordan: { n: 15, label: "jordan" },
+          Egypt: { n: 16, label: "egypt" },
+          "Saudi Arabia": { n: 17, label: "saudi arabia" },
+          "United Arab Emirates": { n: 18, label: "uae" },
+          Germany: { n: 19, label: "germany" },
+          Pakistan: { n: 20, label: "pakistan" },
+          Singapore: { n: 21, label: "singapore" },
+          Japan: { n: 22, label: "japan" },
+          Fiji: { n: 23, label: "fiji" },
+          "New Zealand": { n: 24, label: "new zealand" },
+          Switzerland: { n: 25, label: "switzerland" },
+          Vatican: { n: 26, label: "vatican city" },
+        };
+
+        // tiny countries missing from the 110m map — mark with pulsing rings
+        var tinySpots = [
+          { lat: 35.9, lng: 14.5, name: "malta", n: 9 },
+          { lat: 1.35, lng: 103.82, name: "singapore", n: 21 },
+          { lat: 41.9, lng: 12.45, name: "vatican city", n: 26 },
+        ];
+
+        var BLUE = "#5b89c9";
+        var PAPER = "#f2efe9";
+        var INK = "#2a2a2a";
+
+        var globe = Globe()(document.getElementById("globe"))
+          .backgroundColor("#e8e4dc")
+          .showAtmosphere(true)
+          .atmosphereColor(BLUE)
+          .atmosphereAltitude(0.12)
+          .width(window.innerWidth)
+          .height(window.innerHeight);
+
+        // paper-colored sphere instead of the default space texture
+        globe.globeMaterial().color.set(PAPER);
+        globe.globeMaterial().shininess = 0;
+
+        fetch(
+          "https://globe.gl/example/datasets/ne_110m_admin_0_countries.geojson",
+        )
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (countries) {
+            document.getElementById("loading").style.display = "none";
+
+            globe
+              .polygonsData(countries.features)
+              .polygonCapColor(function (d) {
+                return visited[d.properties.ADMIN] ? BLUE : "#e2ddd2";
+              })
+              .polygonSideColor(function () {
+                return "rgba(42, 42, 42, 0.08)";
+              })
+              .polygonStrokeColor(function () {
+                return "rgba(42, 42, 42, 0.25)";
+              })
+              .polygonAltitude(function (d) {
+                return visited[d.properties.ADMIN] ? 0.012 : 0.004;
+              })
+              .polygonLabel(function (d) {
+                var v = visited[d.properties.ADMIN];
+                if (!v) return "";
+                return (
+                  '<div class="globe-tooltip">' +
+                  v.n +
+                  ". " +
+                  v.label +
+                  "</div>"
+                );
+              })
+              .onPolygonHover(function (d) {
+                globe.polygonAltitude(function (p) {
+                  if (p === d && visited[p.properties.ADMIN]) return 0.06;
+                  return visited[p.properties.ADMIN] ? 0.012 : 0.004;
+                });
+              })
+              .polygonsTransitionDuration(200);
+
+            // pulsing rings + dots for the tiny ones
+            globe
+              .ringsData(tinySpots)
+              .ringColor(function () {
+                return function (t) {
+                  return "rgba(91, 137, 201, " + (1 - t) * 0.6 + ")";
+                };
+              })
+              .ringMaxRadius(3.2)
+              .ringPropagationSpeed(1.2)
+              .ringRepeatPeriod(1400);
+
+            globe
+              .pointsData(tinySpots)
+              .pointColor(function () {
+                return BLUE;
+              })
+              .pointAltitude(0.015)
+              .pointRadius(0.35)
+              .pointLabel(function (d) {
+                return (
+                  '<div class="globe-tooltip">' +
+                  d.n +
+                  ". " +
+                  d.name +
+                  "</div>"
+                );
+              });
+          })
+          .catch(function () {
+            document.getElementById("loading").textContent =
+              "couldn't load the map :( check your connection";
+          });
+
+        // slow auto-spin, start over the atlantic
+        globe.pointOfView({ lat: 25, lng: -30, altitude: 2.2 }, 0);
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.7;
+        globe.controls().enableDamping = true;
+
+        window.addEventListener("resize", function () {
+          globe.width(window.innerWidth).height(window.innerHeight);
+        });
+      })();
+    </script>
+  </body>
+</html>
