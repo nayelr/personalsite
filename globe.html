@@ -125,7 +125,6 @@
 
     <div id="globe"></div>
     <div id="loading">spinning up the globe...</div>
-    <p class="hint">drag to spin &middot; hover a blue country</p>
 
     <script src="https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js"></script>
     <script>
@@ -137,7 +136,8 @@
           "Costa Rica": { label: "costa rica" },
           France: { label: "france" },
           Italy: { label: "italy" },
-          "United Kingdom": { label: "england & scotland" },
+          England: { label: "england" },
+          Scotland: { label: "scotland" },
           Malta: { label: "malta" },
           Turkey: { label: "turkey" },
           Malaysia: { label: "malaysia" },
@@ -181,8 +181,9 @@
         globe.globeMaterial().color.set(PAPER);
         globe.globeMaterial().shininess = 0;
 
+        // map-units dataset splits the uk into england / scotland / wales / n. ireland
         fetch(
-          "https://globe.gl/example/datasets/ne_110m_admin_0_countries.geojson",
+          "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_map_units.geojson",
         )
           .then(function (r) {
             return r.json();
@@ -190,10 +191,14 @@
           .then(function (countries) {
             document.getElementById("loading").style.display = "none";
 
+            function nameOf(d) {
+              return d.properties.GEOUNIT || d.properties.ADMIN;
+            }
+
             globe
               .polygonsData(countries.features)
               .polygonCapColor(function (d) {
-                return visited[d.properties.ADMIN] ? BLUE : "#e2ddd2";
+                return visited[nameOf(d)] ? BLUE : "#e2ddd2";
               })
               .polygonSideColor(function () {
                 return "rgba(42, 42, 42, 0.08)";
@@ -202,17 +207,17 @@
                 return "rgba(42, 42, 42, 0.25)";
               })
               .polygonAltitude(function (d) {
-                return visited[d.properties.ADMIN] ? 0.03 : 0.015;
+                return visited[nameOf(d)] ? 0.03 : 0.015;
               })
               .polygonLabel(function (d) {
-                var v = visited[d.properties.ADMIN];
+                var v = visited[nameOf(d)];
                 if (!v) return "";
                 return '<div class="globe-tooltip">' + v.label + "</div>";
               })
               .onPolygonHover(function (d) {
                 globe.polygonAltitude(function (p) {
-                  if (p === d && visited[p.properties.ADMIN]) return 0.07;
-                  return visited[p.properties.ADMIN] ? 0.03 : 0.015;
+                  if (p === d && visited[nameOf(p)]) return 0.07;
+                  return visited[nameOf(p)] ? 0.03 : 0.015;
                 });
               })
               .polygonsTransitionDuration(200);
