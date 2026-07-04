@@ -885,14 +885,18 @@
         grants.addEventListener("mouseleave", function () {
           hovering = false;
         });
-        // Clicking grants opens the three funders (popup blockers may
-        // limit this to the first tab).
+        // Each click opens the next funder in rotation.
+        var funders = [
+          "https://www.mercatus.org/emergent-ventures",
+          "https://openai.com",
+          "https://www.1517fund.com",
+        ];
+        var funderIdx = 0;
         grants.addEventListener("click", function (e) {
           e.preventDefault();
           if (!canHover) start();
-          window.open("https://www.mercatus.org/emergent-ventures", "_blank");
-          window.open("https://www.1517fund.com", "_blank");
-          window.open("https://openai.com", "_blank");
+          window.open(funders[funderIdx], "_blank");
+          funderIdx = (funderIdx + 1) % funders.length;
         });
 
         // Any other photo swap (a link or the name) clears the money.
