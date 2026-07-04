@@ -477,7 +477,7 @@
 
           <p>
             i've received over
-            <a id="grants-link" data-tip="from emergent ventures, openai, & the 1517 fund">$50k in grants</a>
+            <a id="grants-link">$50k in grants</a>
             for my projects
           </p>
 
@@ -754,7 +754,7 @@
           pile = new Array(COLS).fill(0);
           t = 0;
           savedCaption = caption.innerHTML;
-          caption.innerHTML = "&nbsp;";
+          caption.innerHTML = "from emergent ventures, openai, & the 1517 fund";
           frame.classList.add("money-active");
           if (!raf) raf = requestAnimationFrame(tick);
         }
@@ -885,13 +885,15 @@
         grants.addEventListener("mouseleave", function () {
           hovering = false;
         });
-        // On touch devices, tapping grants makes it rain.
-        if (!canHover) {
-          grants.addEventListener("click", function (e) {
-            e.preventDefault();
-            start();
-          });
-        }
+        // Clicking grants opens the three funders (popup blockers may
+        // limit this to the first tab).
+        grants.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (!canHover) start();
+          window.open("https://www.mercatus.org/emergent-ventures", "_blank");
+          window.open("https://www.1517fund.com", "_blank");
+          window.open("https://openai.com", "_blank");
+        });
 
         // Any other photo swap (a link or the name) clears the money.
         document
