@@ -388,8 +388,8 @@
     <main class="main-container">
       <div class="content">
         <h1>
-          <span class="name-nayel" id="name-nayel"></span
-          ><span id="name-rest"></span>
+          <span class="name-nayel" id="name-nayel">nayel</span
+          ><span id="name-rest"> rehman</span>
         </h1>
         <p class="hover-hint" id="hover-hint">hover the links</p>
         <div class="bio">
@@ -644,25 +644,6 @@
       })();
 
       (function () {
-        function typewrite(el, text, speed, done) {
-          var i = 0;
-          el.textContent = "";
-          var interval = setInterval(function () {
-            el.textContent += text[i];
-            i++;
-            if (i >= text.length) {
-              clearInterval(interval);
-              if (done) done();
-            }
-          }, speed);
-        }
-
-        var nameNayel = document.getElementById("name-nayel");
-        var nameRest = document.getElementById("name-rest");
-        typewrite(nameNayel, "nayel", 90, function () {
-          typewrite(nameRest, " rehman", 90);
-        });
-
         var nameEl = document.getElementById("name-nayel");
         var tooltip = document.getElementById("name-tooltip");
         var offsetY = -12;
@@ -691,14 +672,31 @@
         var defaultCaption = caption.innerHTML;
         var revertTimeout = null;
         var shownSrc = defaultImg;
+        var captionTypeInterval = null;
 
         window.addEventListener("sleep-update", function (event) {
           defaultCaption = event.detail;
-          if (shownSrc === defaultImg) caption.textContent = defaultCaption;
+          clearInterval(captionTypeInterval);
+          if (shownSrc !== defaultImg) return;
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            caption.textContent = defaultCaption;
+            return;
+          }
+          var index = 0;
+          caption.textContent = "";
+          captionTypeInterval = setInterval(function () {
+            if (shownSrc !== defaultImg || index >= defaultCaption.length) {
+              clearInterval(captionTypeInterval);
+              return;
+            }
+            caption.textContent += defaultCaption[index];
+            index++;
+          }, 38);
         });
 
         function setImage(src, captionHtml) {
           if (src === shownSrc) return; // already showing — no flash
+          clearInterval(captionTypeInterval);
           shownSrc = src;
           clearTimeout(revertTimeout);
           img.style.opacity = 0;
@@ -962,7 +960,7 @@
             el.classList.add("nudge");
           });
           if (hint) hint.classList.add("show");
-        }, 1600);
+        }, 3000);
 
         targets.forEach(function (el) {
           el.addEventListener("mouseenter", dismiss);
