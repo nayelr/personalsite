@@ -617,7 +617,8 @@
           <canvas id="money-canvas"></canvas>
         </div>
         <p class="image-caption" id="profile-caption">
-          nayel's sleep data is syncing
+          last night, nayel slept: <span>syncing</span><br />
+          7 day average: <span>syncing</span>
         </p>
       </div>
     </main>
@@ -633,10 +634,13 @@
             return response.json();
           })
           .then(function (data) {
-            if (!data.text) return;
+            if (!data.lastNight || !data.sevenDayAverage) return;
             window.dispatchEvent(
               new CustomEvent("sleep-update", {
-                detail: data.text.toLowerCase(),
+                detail: {
+                  lastNight: data.lastNight.toLowerCase(),
+                  average: data.sevenDayAverage.toLowerCase(),
+                },
               }),
             );
           })
@@ -675,21 +679,35 @@
         var captionTypeInterval = null;
 
         window.addEventListener("sleep-update", function (event) {
-          defaultCaption = event.detail;
+          var lastNight = event.detail.lastNight;
+          var average = event.detail.average;
+          defaultCaption =
+            "last night, nayel slept: " +
+            lastNight +
+            "<br>7 day average: " +
+            average;
           clearInterval(captionTypeInterval);
           if (shownSrc !== defaultImg) return;
           if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            caption.textContent = defaultCaption;
+            caption.innerHTML = defaultCaption;
             return;
           }
+          caption.innerHTML =
+            'last night, nayel slept: <span data-sleep-value="last"></span>' +
+            '<br>7 day average: <span data-sleep-value="average"></span>';
+          var lastValue = caption.querySelector('[data-sleep-value="last"]');
+          var averageValue = caption.querySelector(
+            '[data-sleep-value="average"]',
+          );
           var index = 0;
-          caption.textContent = "";
+          var longestValue = Math.max(lastNight.length, average.length);
           captionTypeInterval = setInterval(function () {
-            if (shownSrc !== defaultImg || index >= defaultCaption.length) {
+            if (shownSrc !== defaultImg || index >= longestValue) {
               clearInterval(captionTypeInterval);
               return;
             }
-            caption.textContent += defaultCaption[index];
+            if (index < lastNight.length) lastValue.textContent += lastNight[index];
+            if (index < average.length) averageValue.textContent += average[index];
             index++;
           }, 38);
         });

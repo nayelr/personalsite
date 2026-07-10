@@ -24,9 +24,9 @@ async function accessToken() {
   return body.access_token;
 }
 
-async function latestSleep() {
+async function recentSleeps() {
   const start = new Date();
-  start.setDate(start.getDate() - 3);
+  start.setDate(start.getDate() - 9);
   const params = new URLSearchParams({
     pageSize: "25",
     filter: `sleep.interval.end_time >= \"${start.toISOString()}\"`,
@@ -43,7 +43,7 @@ async function latestSleep() {
   const body = await response.json();
   if (!response.ok) throw new Error(body.error?.status || "health_api_failed");
 
-  return (body.dataPoints || [])
+  const sleeps = (body.dataPoints || [])
     .map((point) => point.sleep)
     .filter(
       (sleep) =>
@@ -54,7 +54,26 @@ async function latestSleep() {
     .sort(
       (left, right) =>
         new Date(right.interval.endTime) - new Date(left.interval.endTime),
-    )[0];
+    );
+
+  const nights = new Map();
+  for (const sleep of sleeps) {
+    const date = sleep.interval.endTime.slice(0, 10);
+    const existing = nights.get(date);
+    if (
+      !existing ||
+      Number(sleep.summary.minutesAsleep) >
+        Number(existing.summary.minutesAsleep)
+    ) {
+      nights.set(date, sleep);
+    }
+  }
+  return [...nights.values()]
+    .sort(
+      (left, right) =>
+        new Date(right.interval.endTime) - new Date(left.interval.endTime),
+    )
+    .slice(0, 7);
 }
 
 module.exports = async function handler(request, response) {
@@ -69,13 +88,24 @@ module.exports = async function handler(request, response) {
   );
 
   try {
-    const sleep = await latestSleep();
+    const sleeps = await recentSleeps();
+    const sleep = sleeps[0];
     if (!sleep) throw new Error("no_recent_sleep");
     const minutes = Number(sleep.summary.minutesAsleep);
+    const averageMinutes = Math.round(
+      sleeps.reduce(
+        (total, item) => total + Number(item.summary.minutesAsleep),
+        0,
+      ) / sleeps.length,
+    );
     return response.status(200).json({
       text: `Last night, Nayel slept for ${formatSleep(minutes)}.`,
       minutes,
       hours: Number((minutes / 60).toFixed(1)),
+      lastNight: formatSleep(minutes),
+      sevenDayAverage: formatSleep(averageMinutes),
+      sevenDayAverageMinutes: averageMinutes,
+      daysAveraged: sleeps.length,
       sleepEndedAt: sleep.interval.endTime,
       updatedAt: new Date().toISOString(),
     });
@@ -83,6 +113,8 @@ module.exports = async function handler(request, response) {
     console.error("Sleep update unavailable", error.message);
     return response.status(503).json({
       text: "Nayel's latest sleep is syncing.",
+      lastNight: "syncing",
+      sevenDayAverage: "syncing",
     });
   }
 };
