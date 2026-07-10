@@ -4,7 +4,7 @@ function formatSleep(minutes) {
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
   if (!hours) return `${remainder} minutes`;
-  return `${hours} ${hours === 1 ? "hour" : "hours"} ${remainder} minutes`;
+  return `${hours} ${hours === 1 ? "hour" : "hours"} & ${remainder} ${remainder === 1 ? "minute" : "minutes"}`;
 }
 
 async function accessToken() {
