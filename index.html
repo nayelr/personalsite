@@ -617,7 +617,7 @@
           <canvas id="money-canvas"></canvas>
         </div>
         <p class="image-caption" id="profile-caption">
-          last night, nayel slept: <span></span><br />
+          last night, i slept for <span></span><br />
           7 day average: <span></span>
         </p>
       </div>
@@ -682,7 +682,7 @@
           var lastNight = event.detail.lastNight;
           var average = event.detail.average;
           defaultCaption =
-            "last night, nayel slept: " +
+            "last night, i slept for " +
             lastNight +
             "<br>7 day average: " +
             average;
@@ -693,7 +693,7 @@
             return;
           }
           caption.innerHTML =
-            'last night, nayel slept: <span data-sleep-value="last"></span>' +
+            'last night, i slept for <span data-sleep-value="last"></span>' +
             '<br>7 day average: <span data-sleep-value="average"></span>';
           var lastValue = caption.querySelector('[data-sleep-value="last"]');
           var averageValue = caption.querySelector(

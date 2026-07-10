@@ -98,7 +98,7 @@ module.exports = async function handler(request, response) {
       ) / sleeps.length,
     );
     return response.status(200).json({
-      text: `Last night, Nayel slept for ${formatSleep(minutes)}.`,
+      text: `Last night, I slept for ${formatSleep(minutes)}.`,
       minutes,
       hours: Number((minutes / 60).toFixed(1)),
       lastNight: formatSleep(minutes),
