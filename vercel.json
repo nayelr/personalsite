@@ -8,8 +8,12 @@
   ],
   "routes": [
     {
+      "src": "/api/sleep",
+      "dest": "https://nayel-health-production.up.railway.app/api/public/sleep"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
   ]
-} 
+}

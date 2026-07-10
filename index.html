@@ -652,7 +652,7 @@
         var sleepNote = document.getElementById("nayel-sleep");
         if (!sleepNote) return;
 
-        fetch("https://nayel-health-production.up.railway.app/api/public/sleep")
+        fetch("/api/sleep")
           .then(function (response) {
             if (!response.ok) throw new Error("sleep data unavailable");
             return response.json();
