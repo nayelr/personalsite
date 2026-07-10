@@ -4,7 +4,6 @@ function formatSleep(minutes) {
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
   if (!hours) return `${remainder} minutes`;
-  if (!remainder) return `${hours} ${hours === 1 ? "hour" : "hours"}`;
   return `${hours} ${hours === 1 ? "hour" : "hours"} ${remainder} minutes`;
 }
 
