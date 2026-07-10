@@ -303,6 +303,20 @@
         white-space: nowrap;
       }
 
+      .sleep-note {
+        position: relative;
+        margin-top: -3.5rem;
+        padding: 0 1.5rem 1.5rem;
+        color: #7b7469;
+        font-size: 1rem;
+        font-style: italic;
+        text-align: center;
+      }
+
+      .sleep-note[data-loaded="true"] {
+        color: #5f594f;
+      }
+
       /* Mobile styles */
       @media (max-width: 768px) {
         .main-container {
@@ -379,6 +393,11 @@
           padding: 0 1rem;
           font-weight: 400;
           white-space: normal;
+        }
+
+        .sleep-note {
+          margin-top: 0;
+          padding: 0 1.5rem 1.5rem;
         }
       }
     </style>
@@ -621,10 +640,33 @@
       </div>
     </main>
 
+    <p class="sleep-note" id="nayel-sleep" aria-live="polite">
+      nayel's sleep data is syncing
+    </p>
+
     <div class="name-tooltip" id="name-tooltip">pronounced like the river</div>
     <div class="name-tooltip" id="hover-tip"></div>
 
     <script>
+      (function () {
+        var sleepNote = document.getElementById("nayel-sleep");
+        if (!sleepNote) return;
+
+        fetch("https://nayel-health-production.up.railway.app/api/public/sleep")
+          .then(function (response) {
+            if (!response.ok) throw new Error("sleep data unavailable");
+            return response.json();
+          })
+          .then(function (data) {
+            if (!data.text) return;
+            sleepNote.textContent = data.text.toLowerCase();
+            sleepNote.setAttribute("data-loaded", "true");
+          })
+          .catch(function () {
+            sleepNote.textContent = "nayel's sleep data is syncing";
+          });
+      })();
+
       (function () {
         function typewrite(el, text, speed, done) {
           var i = 0;
