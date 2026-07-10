@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "**/*",
       "use": "@vercel/static"
     }
@@ -9,7 +13,7 @@
   "routes": [
     {
       "src": "/api/sleep",
-      "dest": "https://nayel-health-production.up.railway.app/api/public/sleep"
+      "dest": "/api/sleep.js"
     },
     {
       "src": "/(.*)",
