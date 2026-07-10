@@ -303,20 +303,6 @@
         white-space: nowrap;
       }
 
-      .sleep-note {
-        position: relative;
-        margin-top: -3.5rem;
-        padding: 0 1.5rem 1.5rem;
-        color: #7b7469;
-        font-size: 1rem;
-        font-style: italic;
-        text-align: center;
-      }
-
-      .sleep-note[data-loaded="true"] {
-        color: #5f594f;
-      }
-
       /* Mobile styles */
       @media (max-width: 768px) {
         .main-container {
@@ -395,10 +381,6 @@
           white-space: normal;
         }
 
-        .sleep-note {
-          margin-top: 0;
-          padding: 0 1.5rem 1.5rem;
-        }
       }
     </style>
   </head>
@@ -635,23 +617,16 @@
           <canvas id="money-canvas"></canvas>
         </div>
         <p class="image-caption" id="profile-caption">
-          waiting on claude code
+          nayel's sleep data is syncing
         </p>
       </div>
     </main>
-
-    <p class="sleep-note" id="nayel-sleep" aria-live="polite">
-      nayel's sleep data is syncing
-    </p>
 
     <div class="name-tooltip" id="name-tooltip">pronounced like the river</div>
     <div class="name-tooltip" id="hover-tip"></div>
 
     <script>
       (function () {
-        var sleepNote = document.getElementById("nayel-sleep");
-        if (!sleepNote) return;
-
         fetch("/api/sleep")
           .then(function (response) {
             if (!response.ok) throw new Error("sleep data unavailable");
@@ -659,12 +634,13 @@
           })
           .then(function (data) {
             if (!data.text) return;
-            sleepNote.textContent = data.text.toLowerCase();
-            sleepNote.setAttribute("data-loaded", "true");
+            window.dispatchEvent(
+              new CustomEvent("sleep-update", {
+                detail: data.text.toLowerCase(),
+              }),
+            );
           })
-          .catch(function () {
-            sleepNote.textContent = "nayel's sleep data is syncing";
-          });
+          .catch(function () {});
       })();
 
       (function () {
@@ -715,6 +691,11 @@
         var defaultCaption = caption.innerHTML;
         var revertTimeout = null;
         var shownSrc = defaultImg;
+
+        window.addEventListener("sleep-update", function (event) {
+          defaultCaption = event.detail;
+          if (shownSrc === defaultImg) caption.textContent = defaultCaption;
+        });
 
         function setImage(src, captionHtml) {
           if (src === shownSrc) return; // already showing — no flash
