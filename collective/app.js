@@ -1,7 +1,7 @@
 const MEMBERS = ["Nayel", "Anusha", "Anush", "Rushil"];
 const COLORS = { Nayel: "#476fdc", Anusha: "#dc7b64", Anush: "#45a08a", Rushil: "#906ac8" };
 const MEMBER_PROFILES = {
-  Nayel: { name:"Nayel Rehman", role:"EE & Philosophy at UIUC", company:"Cactus Capital", location:"Fairfax, VA", url:"https://www.linkedin.com/in/nayelrehman/", photo:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSopnJm-o_4kJV-5siebpsMI-q-W7LU0kDCkz8dlQ2UMQ&s=10" },
+  Nayel: { name:"Nayel Rehman", role:"EE & Philosophy at UIUC", company:"Cactus Capital", location:"Fairfax, VA", url:"https://www.linkedin.com/in/nayelrehman/", photo:"/collective/assets/nayel.jpg" },
   Anusha: { name:"Anusha Agarwal", role:"UPenn M&T · Regeneron STS Scholar", company:"Orbitum", location:"Washington DC–Baltimore Area", url:"https://www.linkedin.com/in/anusha-agarwal-b216b825b/", photo:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZOAZCgvZ_luwEInfoPiuW_xM_s3PfouL-YXuza7lM2A&s=10" },
   Anush: { name:"Anush Devkar", role:"Engineering", company:"Greenway Engineering Inc.", location:"DC Metro Area", url:"https://www.linkedin.com/in/anushdevkar/", photo:"https://ugc.production.linktr.ee/a1d76b5c-776f-42bc-bb62-e1daddbed4d7_AnushDevkarProfile-magic.jpeg?io=true&size=avatar-v3_0" },
   Rushil: { name:"Rushil Kukreja", role:"Physics at Princeton University", company:"SpaceX", location:"New York, NY", url:"https://www.linkedin.com/in/rushil-kukreja/", photo:"https://hacktj.org/team/rushil.jpg" }
@@ -238,4 +238,3 @@ function registerWebMcp(){
 
 bindEvents();registerWebMcp();
 const remembered=sessionStorage.getItem("inner-circle-user");if(remembered&&MEMBERS.includes(remembered))login(remembered);
-

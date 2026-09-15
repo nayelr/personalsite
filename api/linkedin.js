@@ -4,7 +4,7 @@ const cache = new Map();
 const KNOWN_PROFILES = {
   nayelrehman: {
     name: "Nayel Rehman", role: "EE & Philosophy at UIUC", company: "Cactus Capital", location: "Fairfax, VA",
-    photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSopnJm-o_4kJV-5siebpsMI-q-W7LU0kDCkz8dlQ2UMQ&s=10"
+    photo: "/collective/assets/nayel.jpg"
   },
   "anusha-agarwal-b216b825b": {
     name: "Anusha Agarwal", role: "UPenn M&T · Regeneron STS Scholar", company: "Orbitum", location: "Washington DC–Baltimore Area",
@@ -189,4 +189,3 @@ export default async function handler(request, response) {
   cache.set(profile.url, { time:Date.now(), data:result });
   return response.status(200).json(result);
 }
-
