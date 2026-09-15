@@ -12,7 +12,7 @@ const KNOWN_PROFILES = {
   },
   "rushil-kukreja": {
     name: "Rushil Kukreja", role: "Physics at Princeton University", company: "SpaceX", location: "New York, NY",
-    photo: "https://hacktj.org/team/rushil.jpg"
+    photo: "/collective/assets/rushil.png"
   },
   anushdevkar: {
     name: "Anush Devkar", role: "Engineering", company: "Greenway Engineering Inc.", location: "DC Metro Area",
