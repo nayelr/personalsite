@@ -20,6 +20,10 @@
       "dest": "/api/linkedin.js"
     },
     {
+      "src": "/api/connections",
+      "dest": "/api/connections.js"
+    },
+    {
       "src": "/collective/?",
       "dest": "/collective/index.html"
     },

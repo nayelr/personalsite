@@ -35,6 +35,31 @@ function loadPeople(){
 }
 function savePeople(){ localStorage.setItem("inner-circle-people-v1", JSON.stringify(state.people)); }
 
+let syncInFlight = false;
+async function createRemoteConnection(person){
+  const response = await fetch("/api/connections", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(person) });
+  if(!response.ok) throw new Error("Shared save failed");
+  return (await response.json()).person;
+}
+async function syncPeople(){
+  if(syncInFlight) return;
+  syncInFlight = true;
+  try {
+    const response = await fetch("/api/connections", { cache:"no-store" });
+    if(!response.ok) throw new Error("Shared sync unavailable");
+    const remote = (await response.json()).people;
+    if(!Array.isArray(remote)) throw new Error("Invalid shared data");
+    if(!remote.length && state.people.length){
+      const migrated=[];
+      for(const person of state.people) migrated.push(await createRemoteConnection(person));
+      state.people=migrated;
+    } else state.people=remote;
+    savePeople();
+    if(state.currentUser) render();
+  } catch {}
+  finally { syncInFlight=false; }
+}
+
 function login(name){
   const canonical = MEMBERS.find(m => m.toLowerCase() === name.trim().toLowerCase());
   if(!canonical){ $("#login-error").textContent = "That name isn’t in this circle yet."; return; }
@@ -45,6 +70,7 @@ function login(name){
   setMemberAvatar($("#current-avatar"), canonical);
   $("#person-owner").value = canonical;
   render();
+  syncPeople();
 }
 
 function logout(){ sessionStorage.removeItem("inner-circle-user"); state.currentUser=null; $("#app").hidden=true; $("#login-screen").hidden=false; $("#login-name").value=""; $("#login-name").focus(); }
@@ -127,7 +153,7 @@ function openDetail(id){
   $("#detail-content").innerHTML=`<div class="detail-hero">${avatarMarkup(p)}<h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.role)} at ${escapeHtml(p.company)}</p><p>${escapeHtml(p.location)}</p><a class="detail-link" href="${escapeHtml(p.url)}" target="_blank" rel="noreferrer">View LinkedIn ↗</a></div><div class="detail-block"><h3>Connected through</h3>${p.owners.map(o=>`<div class="through-row">${memberAvatarMarkup(o)}<strong>${o}</strong></div>`).join("")}</div><div class="detail-block"><h3>How you know them</h3><p>${escapeHtml(p.note)||"No note added yet."}</p></div><div class="detail-block"><h3>Added</h3><p>${new Date(p.added+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}</p></div><div class="detail-actions"><button class="secondary-button" id="copy-link">Copy LinkedIn</button><button class="secondary-button danger-button" id="delete-person">Remove</button></div>`;
   $("#detail-panel").classList.add("open");$("#detail-panel").setAttribute("aria-hidden","false");
   $("#copy-link").onclick=()=>{navigator.clipboard?.writeText(p.url);showToast("LinkedIn link copied");};
-  $("#delete-person").onclick=()=>{ if(confirm(`Remove ${p.name} from the network?`)){state.people=state.people.filter(x=>x.id!==id);savePeople();closeDetail();render();showToast("Connection removed");} };
+  $("#delete-person").onclick=async()=>{ if(confirm(`Remove ${p.name} from the network?`)){state.people=state.people.filter(x=>x.id!==id);savePeople();closeDetail();render();try{if(id.startsWith("p_")){const response=await fetch(`/api/connections?id=${encodeURIComponent(id)}`,{method:"DELETE"});if(!response.ok)throw new Error();}showToast("Connection removed for everyone");}catch{showToast("Removed here; shared sync will retry");}} };
 }
 function closeDetail(){ $("#detail-panel").classList.remove("open");$("#detail-panel").setAttribute("aria-hidden","true");state.selectedId=null; }
 
@@ -189,9 +215,12 @@ async function enrichProfile(){
   $("#add-step-link").hidden=true;$("#connection-form").hidden=false;$("#person-name").focus();
 }
 
-function addConnection(e){
+async function addConnection(e){
   e.preventDefault(); const owner=$("#person-owner").value; const person={id:`p${Date.now()}`,name:$("#person-name").value.trim(),company:$("#person-company").value.trim()||"Independent",role:$("#person-role").value.trim()||"Connection",location:$("#person-location").value.trim()||"Location not listed",photo:state.pendingPhoto||$("#person-photo").value.trim()||"",owners:[owner],note:$("#person-note").value.trim(),url:$("#linkedin-url").value.trim(),added:new Date().toISOString().slice(0,10)};
-  if(!person.name)return; state.people.unshift(person);savePeople();closeModal();render();showToast(`${person.name} added through ${owner}`);openDetail(person.id);e.target.reset();$("#person-owner").value=state.currentUser;
+  if(!person.name)return;
+  let saved=person, shared=false;
+  try { saved=await createRemoteConnection(person); shared=true; } catch {}
+  state.people.unshift(saved);savePeople();closeModal();render();showToast(shared?`${saved.name} added for everyone`:`${saved.name} saved on this device`);openDetail(saved.id);e.target.reset();$("#person-owner").value=state.currentUser;
 }
 
 function setView(view){
@@ -224,10 +253,12 @@ function registerWebMcp(){
   const context=document.modelContext;if(!context?.registerTool)return;
   const tools=[
     {name:"search_network",title:"Search network",description:"Search all four friends' saved connections by person, company, role, location, or owner.",inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"],additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:({query})=>{if(typeof query!=="string"||!query.trim())throw new Error("query is required");return state.people.filter(p=>[p.name,p.company,p.role,p.location,...p.owners].join(" ").toLowerCase().includes(query.toLowerCase())).map(({id,name,role,company,owners})=>({id,name,role,company,owners}));}},
-    {name:"add_network_connection",title:"Add network connection",description:"Add a reviewed LinkedIn connection to one member's network.",inputSchema:{type:"object",properties:{name:{type:"string"},linkedinUrl:{type:"string"},owner:{type:"string",enum:MEMBERS},role:{type:"string"},company:{type:"string"},location:{type:"string"},note:{type:"string"}},required:["name","linkedinUrl","owner"],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:(input)=>{if(!input.name?.trim()||!parseLinkedInSlug(input.linkedinUrl)||!MEMBERS.includes(input.owner))throw new Error("Valid name, LinkedIn URL, and owner are required");const person={id:`p${Date.now()}`,name:input.name.trim(),url:input.linkedinUrl,owners:[input.owner],role:input.role||"Connection",company:input.company||"Independent",location:input.location||"Location not listed",note:input.note||"",added:new Date().toISOString().slice(0,10)};state.people.unshift(person);savePeople();render();return {id:person.id,name:person.name,owner:input.owner,status:"added"};}}
+    {name:"add_network_connection",title:"Add network connection",description:"Add a reviewed LinkedIn connection to one member's network.",inputSchema:{type:"object",properties:{name:{type:"string"},linkedinUrl:{type:"string"},owner:{type:"string",enum:MEMBERS},role:{type:"string"},company:{type:"string"},location:{type:"string"},note:{type:"string"}},required:["name","linkedinUrl","owner"],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async(input)=>{if(!input.name?.trim()||!parseLinkedInSlug(input.linkedinUrl)||!MEMBERS.includes(input.owner))throw new Error("Valid name, LinkedIn URL, and owner are required");let person={name:input.name.trim(),url:input.linkedinUrl,owners:[input.owner],role:input.role||"Connection",company:input.company||"Independent",location:input.location||"Location not listed",note:input.note||"",added:new Date().toISOString().slice(0,10)};person=await createRemoteConnection(person);state.people.unshift(person);savePeople();render();return {id:person.id,name:person.name,owner:input.owner,status:"added"};}}
   ];
   tools.forEach(tool=>Promise.resolve(context.registerTool(tool)).catch(()=>{}));
 }
 
 bindEvents();registerWebMcp();
 const remembered=sessionStorage.getItem("inner-circle-user");if(remembered&&MEMBERS.includes(remembered))login(remembered);
+setInterval(()=>{if(state.currentUser)syncPeople();},10000);
+window.addEventListener("focus",()=>{if(state.currentUser)syncPeople();});
