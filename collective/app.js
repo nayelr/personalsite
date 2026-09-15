@@ -205,13 +205,14 @@ async function enrichProfile(){
   const url=$("#linkedin-url").value.trim(), guessed=parseLinkedInSlug(url); if(!guessed){$("#linkedin-error").textContent="Paste a valid linkedin.com/in/… profile link.";return;}
   const button=$("#continue-add"); button.disabled=true; button.textContent="Finding public details…"; $("#linkedin-error").textContent="";
   let data={name:guessed,company:"",role:"",location:"",photo:""};
-  try { const res=await fetch(`/api/linkedin?url=${encodeURIComponent(url)}`); if(!res.ok)throw new Error();data={...data,...await res.json()}; }
+  try { const res=await fetch(`/api/linkedin?url=${encodeURIComponent(url)}`); if(!res.ok)throw new Error();data={...data,...await res.json()};if(/(?:profile|page)\s+not\s+found|linkedin strengthens and extends|join linkedin|sign in to view/i.test([data.name,data.role,data.company].join(" ")))data={name:guessed,company:"",role:"",location:"",photo:"",source:"slug"};if(data.source==="slug")$("#linkedin-error").textContent="LinkedIn did not expose public details for this profile. Review the name and fill in any missing fields."; }
   catch { $("#linkedin-error").textContent="LinkedIn could not be reached. You can still enter the profile manually."; }
   button.disabled=false;button.innerHTML="Continue <span>→</span>";
   state.pendingPhoto=data.photo||"";$("#person-name").value=data.name||guessed;$("#person-company").value=data.company||"";$("#person-role").value=data.role||"";$("#person-location").value=data.location||"";
   $("#person-photo").value=state.pendingPhoto&&!state.pendingPhoto.startsWith("data:")?state.pendingPhoto:"";
   $("#photo-fallback").open=!state.pendingPhoto;
-  updateProfilePreview(data.name||guessed,state.pendingPhoto?"Photo and public details imported":"LinkedIn hid the photo — upload one below");
+  const importedDetails=data.role||data.company||data.location;
+  updateProfilePreview(data.name||guessed,data.source==="slug"?"Public details unavailable — complete below":state.pendingPhoto?"Photo and public details imported":importedDetails?"Public details imported; photo hidden":"Review and complete the profile below");
   $("#add-step-link").hidden=true;$("#connection-form").hidden=false;$("#person-name").focus();
 }
 

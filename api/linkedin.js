@@ -1,5 +1,6 @@
 const CACHE_TTL = 1000 * 60 * 60 * 24;
 const cache = new Map();
+const LINKEDIN_ERROR_TEXT = /(?:profile|page)\s+not\s+found|linkedin strengthens and extends|join linkedin|sign in to view/i;
 
 const KNOWN_PROFILES = {
   nayelrehman: {
@@ -116,6 +117,15 @@ function parseMicrolink(payload, slugName){
   };
 }
 
+function cleanProviderData(data, profile){
+  if(!data) return null;
+  const name=String(data.name||"").trim(), role=String(data.role||"").trim(), company=String(data.company||"").trim(), location=String(data.location||"").trim();
+  if(LINKEDIN_ERROR_TEXT.test([name,role,company,location].join(" "))) return null;
+  const photo=/^data:image\/svg/i.test(data.photo||"") ? "" : (data.photo||"");
+  if(!name&&!role&&!company&&!location&&!photo) return null;
+  return { ...data, name:name||profile.slugName, role, company, location, photo };
+}
+
 async function fromMicrolink(profileUrl, slugName){
   const key = process.env.MICROLINK_API_KEY;
   const base = key ? "https://pro.microlink.io" : "https://api.microlink.io";
@@ -137,11 +147,12 @@ async function resolveUnavatar(slug){
 }
 
 async function snapshotPhoto(photoUrl){
-  if(!photoUrl || photoUrl.startsWith("data:image/")) return photoUrl || "";
+  if(!photoUrl || /^data:image\/svg/i.test(photoUrl)) return "";
+  if(photoUrl.startsWith("data:image/")) return photoUrl;
   try {
     const result = await fetch(photoUrl, { headers:{ "User-Agent":"Mozilla/5.0", "Referer":"https://www.linkedin.com/" }, signal:AbortSignal.timeout(12000) });
     const type = result.headers.get("content-type") || "";
-    if(!result.ok || !type.startsWith("image/")) return photoUrl;
+    if(!result.ok || !type.startsWith("image/") || type.includes("svg")) return "";
     const bytes = new Uint8Array(await result.arrayBuffer());
     if(bytes.length > 2_000_000) return photoUrl;
     return `data:${type.split(";")[0]};base64,${Buffer.from(bytes).toString("base64")}`;
@@ -152,11 +163,14 @@ async function enrich(profile){
   if(KNOWN_PROFILES[profile.slug]) return { ...KNOWN_PROFILES[profile.slug], source:"verified-cache" };
   for(const provider of [fromScrapIn,fromApollo,fromPeopleDataLabs]){
     try {
-      const data = await provider(profile.url);
+      const data = cleanProviderData(await provider(profile.url), profile);
       if(data?.name || data?.photo) return data;
     } catch {}
   }
-  try { return await fromMicrolink(profile.url, profile.slugName); } catch {}
+  try {
+    const data=cleanProviderData(await fromMicrolink(profile.url, profile.slugName), profile);
+    if(data) return data;
+  } catch {}
   return { name:profile.slugName, role:"", company:"", location:"", photo:"", source:"slug" };
 }
 
