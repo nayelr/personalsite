@@ -16,6 +16,14 @@
       "dest": "/api/sleep.js"
     },
     {
+      "src": "/api/linkedin",
+      "dest": "/api/linkedin.js"
+    },
+    {
+      "src": "/collective/?",
+      "dest": "/collective/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

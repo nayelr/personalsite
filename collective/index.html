@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f8fb" />
+    <meta name="description" content="A shared network map for Nayel, Anusha, Anush, and Rushil." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b2540'/%3E%3Ccircle cx='20' cy='20' r='6' fill='%23f7f8fb'/%3E%3Ccircle cx='44' cy='22' r='6' fill='%23f7f8fb'/%3E%3Ccircle cx='32' cy='44' r='6' fill='%23f7f8fb'/%3E%3Cpath d='M25 22l13-1M23 25l7 14M41 27l-7 12' stroke='%23f7f8fb' stroke-width='3'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/collective/styles.css" />
+    <title>The Collective — Network Map</title>
+  </head>
+  <body>
+    <div id="login-screen" class="login-screen">
+      <div class="login-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <main class="login-card">
+        <p class="eyebrow">The Collective</p>
+        <h1>Who’s here?</h1>
+        <p class="login-copy">Enter your first name to open the circle.</p>
+        <form id="login-form" class="login-form">
+          <label for="login-name" class="sr-only">Your first name</label>
+          <input id="login-name" name="name" autocomplete="given-name" placeholder="First name" autofocus />
+          <button type="submit" class="primary-button">Enter <span aria-hidden="true">↗</span></button>
+        </form>
+        <p id="login-error" class="form-error" role="alert"></p>
+      </main>
+    </div>
+
+    <div id="app" class="app-shell" hidden>
+      <header class="topbar">
+        <button id="brand-home" class="brand" aria-label="Show full network">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>The Collective</span>
+        </button>
+        <div class="global-search-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+          <label for="global-search" class="sr-only">Search all networks</label>
+          <input id="global-search" type="search" placeholder="Search people, companies, or schools" />
+          <kbd>⌘ K</kbd>
+          <div id="search-results" class="search-results" hidden></div>
+        </div>
+        <button id="add-button" class="primary-button compact"><span aria-hidden="true">＋</span> Add person</button>
+        <button id="user-menu" class="user-chip" aria-label="Log out"><span id="current-avatar" class="mini-avatar"></span><span id="current-user"></span><span aria-hidden="true">⌄</span></button>
+      </header>
+
+      <aside class="sidebar">
+        <nav aria-label="Network views">
+          <p class="nav-label">Network</p>
+          <button class="nav-item active" data-owner="all"><span class="nav-icon">⌘</span>Everyone<span id="all-count" class="count-pill"></span></button>
+          <p class="nav-label people-label">People</p>
+          <button class="nav-item" data-owner="Nayel"><span class="mini-avatar nayel">N</span>Nayel<span class="count-pill" data-count="Nayel"></span></button>
+          <button class="nav-item" data-owner="Anusha"><span class="mini-avatar anusha">A</span>Anusha<span class="count-pill" data-count="Anusha"></span></button>
+          <button class="nav-item" data-owner="Anush"><span class="mini-avatar anush">A</span>Anush<span class="count-pill" data-count="Anush"></span></button>
+          <button class="nav-item" data-owner="Rushil"><span class="mini-avatar rushil">R</span>Rushil<span class="count-pill" data-count="Rushil"></span></button>
+        </nav>
+        <div class="sidebar-note">
+          <div class="overlap-icon" aria-hidden="true"><span></span><span></span></div>
+          <div><strong id="shared-count">0 shared connections</strong><p>People known by more than one of you.</p></div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="workspace-heading">
+          <div>
+            <p id="view-kicker" class="eyebrow">The full circle</p>
+            <h1 id="view-title">Your people, mapped.</h1>
+            <p id="view-profile" class="view-profile" hidden></p>
+          </div>
+          <div class="view-toggle" aria-label="View style">
+            <button class="active" data-view="map" aria-label="Map view"><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="m8 7 8-1m-9 3 4 7m6-8-4 8"/></svg></button>
+            <button data-view="list" aria-label="List view"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
+          </div>
+        </section>
+
+        <section id="map-view" class="map-view" aria-label="Connection map">
+          <svg id="network-lines" class="network-lines" aria-hidden="true"></svg>
+          <div id="network-nodes" class="network-nodes"></div>
+          <div class="map-legend"><span><i class="legend-line"></i> Connection</span><span><i class="legend-dash"></i> Shared</span></div>
+          <div class="zoom-controls"><button id="zoom-in" aria-label="Zoom in">＋</button><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-reset" aria-label="Reset zoom">↗</button></div>
+        </section>
+
+        <section id="list-view" class="list-view" hidden>
+          <div class="list-header"><span>Person</span><span>Connected through</span><span>Company</span><span>Location</span></div>
+          <div id="people-list"></div>
+        </section>
+
+        <section class="recent-section">
+          <div class="section-title"><div><p class="eyebrow">Recent</p><h2>Latest connections</h2></div><button id="view-all" class="text-button">View all <span>→</span></button></div>
+          <div id="recent-grid" class="recent-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="modal-backdrop" class="modal-backdrop" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-header"><div><p class="eyebrow">New connection</p><h2 id="modal-title">Add someone to the circle</h2></div><button class="icon-button" data-close-modal aria-label="Close">×</button></div>
+        <div id="add-step-link" class="modal-step">
+          <label for="linkedin-url">LinkedIn profile</label>
+          <div class="url-input-wrap"><span class="linkedin-badge">in</span><input id="linkedin-url" type="url" placeholder="Paste a LinkedIn profile URL" /></div>
+          <p class="field-help">We’ll import the public profile and save a stable copy of its photo. You can review everything before saving.</p>
+          <p id="linkedin-error" class="form-error" role="alert"></p>
+          <button id="continue-add" class="primary-button full">Continue <span>→</span></button>
+        </div>
+        <form id="connection-form" class="modal-step details-form" hidden>
+          <div id="profile-preview" class="profile-preview"><div class="person-avatar large"></div><div><strong></strong><span></span></div><button type="button" id="change-link" class="text-button">Change link</button></div>
+          <div class="field-row"><label>Name<input id="person-name" required placeholder="Full name" /></label><label>Company<input id="person-company" placeholder="Company or organization" /></label></div>
+          <div class="field-row"><label>Role<input id="person-role" placeholder="Role or headline" /></label><label>Location<input id="person-location" placeholder="City" /></label></div>
+          <details id="photo-fallback" class="photo-fallback">
+            <summary>Photo missing or wrong?</summary>
+            <div class="photo-fields">
+              <label>Image URL <span class="optional">Optional</span><input id="person-photo" type="url" placeholder="https://…" /></label>
+              <label class="file-upload">Upload a photo <span class="optional">Optional</span><input id="person-photo-file" type="file" accept="image/*" /><span class="upload-button">Choose image</span></label>
+            </div>
+            <p id="photo-error" class="form-error" role="alert"></p>
+          </details>
+          <label>Connected through<select id="person-owner"><option>Nayel</option><option>Anusha</option><option>Anush</option><option>Rushil</option></select></label>
+          <label>How do you know them? <span class="optional">Optional</span><textarea id="person-note" rows="3" placeholder="Met at the robotics lab, worked together at…"></textarea></label>
+          <div class="form-actions"><button type="button" class="secondary-button" data-close-modal>Cancel</button><button type="submit" class="primary-button">Add to network</button></div>
+        </form>
+      </section>
+    </div>
+
+    <aside id="detail-panel" class="detail-panel" aria-hidden="true">
+      <button id="close-detail" class="icon-button" aria-label="Close details">×</button>
+      <div id="detail-content"></div>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/collective/app.js" defer></script>
+  </body>
+</html>
