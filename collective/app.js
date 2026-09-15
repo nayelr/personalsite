@@ -6,20 +6,7 @@ const MEMBER_PROFILES = {
   Anush: { name:"Anush Devkar", role:"Engineering", company:"Greenway Engineering Inc.", location:"DC Metro Area", url:"https://www.linkedin.com/in/anushdevkar/", photo:"https://ugc.production.linktr.ee/a1d76b5c-776f-42bc-bb62-e1daddbed4d7_AnushDevkarProfile-magic.jpeg?io=true&size=avatar-v3_0" },
   Rushil: { name:"Rushil Kukreja", role:"Physics at Princeton University", company:"SpaceX", location:"New York, NY", url:"https://www.linkedin.com/in/rushil-kukreja/", photo:"https://hacktj.org/team/rushil.jpg" }
 };
-const SEED = [
-  { id:"p1", name:"Maya Chen", role:"Product Designer", company:"Figma", location:"New York, NY", owners:["Nayel","Anusha"], note:"Met through Design for America and kept in touch after demo day.", url:"https://www.linkedin.com/in/maya-chen", added:"2026-09-12" },
-  { id:"p2", name:"Arjun Mehta", role:"Software Engineer", company:"Stripe", location:"San Francisco, CA", owners:["Anush"], note:"Worked together on the hackathon payments project.", url:"https://www.linkedin.com/in/arjun-mehta", added:"2026-09-11" },
-  { id:"p3", name:"Sofia Ramirez", role:"Venture Associate", company:"Pear VC", location:"Palo Alto, CA", owners:["Rushil","Nayel"], note:"Introduced by a mutual friend after a campus founder event.", url:"https://www.linkedin.com/in/sofia-ramirez", added:"2026-09-10" },
-  { id:"p4", name:"Ethan Park", role:"ML Researcher", company:"OpenAI", location:"San Francisco, CA", owners:["Anusha"], note:"Research group alum.", url:"https://www.linkedin.com/in/ethan-park", added:"2026-09-08" },
-  { id:"p5", name:"Priya Shah", role:"Founder", company:"Sundial Health", location:"Chicago, IL", owners:["Nayel"], note:"Met at a Chicago healthcare meetup.", url:"https://www.linkedin.com/in/priya-shah", added:"2026-09-07" },
-  { id:"p6", name:"Noah Williams", role:"Robotics PhD", company:"UIUC", location:"Urbana, IL", owners:["Anush","Rushil"], note:"Robotics lab connection.", url:"https://www.linkedin.com/in/noah-williams", added:"2026-09-06" },
-  { id:"p7", name:"Lena Ortiz", role:"Growth Lead", company:"Ramp", location:"New York, NY", owners:["Anusha"], note:"Former coworker.", url:"https://www.linkedin.com/in/lena-ortiz", added:"2026-09-04" },
-  { id:"p8", name:"Marcus Lee", role:"Investor", company:"Contrary", location:"San Francisco, CA", owners:["Rushil"], note:"Spoke after a student founders dinner.", url:"https://www.linkedin.com/in/marcus-lee", added:"2026-09-03" },
-  { id:"p9", name:"Zara Ahmed", role:"Data Scientist", company:"Perplexity", location:"Austin, TX", owners:["Nayel","Anush"], note:"Friend from a summer program.", url:"https://www.linkedin.com/in/zara-ahmed", added:"2026-09-02" },
-  { id:"p10", name:"Theo Martin", role:"Strategy & Ops", company:"Notion", location:"New York, NY", owners:["Anusha","Rushil"], note:"Introduced through Maya.", url:"https://www.linkedin.com/in/theo-martin", added:"2026-08-29" },
-  { id:"p11", name:"Isha Kapoor", role:"Founder", company:"Kite Labs", location:"Boston, MA", owners:["Anush"], note:"College friend building in education.", url:"https://www.linkedin.com/in/isha-kapoor", added:"2026-08-27" },
-  { id:"p12", name:"Daniel Kim", role:"PM", company:"Linear", location:"Seattle, WA", owners:["Nayel"], note:"Met at a product meetup.", url:"https://www.linkedin.com/in/daniel-kim", added:"2026-08-25" }
-];
+const DUMMY_IDS = new Set(["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12"]);
 
 const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, people:loadPeople() };
 const $ = (selector, root=document) => root.querySelector(selector);
@@ -37,8 +24,14 @@ function setMemberAvatar(element, member){
 }
 
 function loadPeople(){
-  try { const saved = localStorage.getItem("inner-circle-people-v1"); return saved ? JSON.parse(saved) : SEED; }
-  catch { return SEED; }
+  try {
+    const saved = localStorage.getItem("inner-circle-people-v1");
+    const people = saved ? JSON.parse(saved) : [];
+    if(!Array.isArray(people)) return [];
+    const cleaned = people.filter(person => !DUMMY_IDS.has(person.id));
+    if(cleaned.length !== people.length) localStorage.setItem("inner-circle-people-v1", JSON.stringify(cleaned));
+    return cleaned;
+  } catch { return []; }
 }
 function savePeople(){ localStorage.setItem("inner-circle-people-v1", JSON.stringify(state.people)); }
 
