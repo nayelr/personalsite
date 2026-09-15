@@ -16,7 +16,7 @@ const KNOWN_PROFILES = {
   },
   anushdevkar: {
     name: "Anush Devkar", role: "Engineering", company: "Greenway Engineering Inc.", location: "DC Metro Area",
-    photo: "https://ugc.production.linktr.ee/a1d76b5c-776f-42bc-bb62-e1daddbed4d7_AnushDevkarProfile-magic.jpeg?io=true&size=avatar-v3_0"
+    photo: "/collective/assets/anush.png"
   }
 };
 
