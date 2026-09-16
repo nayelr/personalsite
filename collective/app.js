@@ -8,7 +8,7 @@ const MEMBER_PROFILES = {
 };
 const DUMMY_IDS = new Set(["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12"]);
 
-const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, pendingPhoto:"", duplicateId:null, people:loadPeople() };
+const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, pendingPhoto:"", duplicateId:null, sharedReady:false, people:loadPeople() };
 const $ = (selector, root=document) => root.querySelector(selector);
 const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
 const initials = name => name.split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
@@ -39,8 +39,10 @@ let syncInFlight = false;
 async function createRemoteConnection(person){
   const response = await fetch("/api/connections", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(person) });
   if(!response.ok) throw new Error("Shared save failed");
+  state.sharedReady=true;updateSyncHint();
   return (await response.json()).person;
 }
+function updateSyncHint(){const hint=$("#save-hint");if(hint)hint.textContent=state.sharedReady?"Visible to everyone in The Collective":"Shared sync needs its database connected";}
 async function updateRemoteConnection(id,owner){
   const response=await fetch("/api/connections",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,owner})});
   if(!response.ok)throw new Error("Shared update failed");
@@ -54,6 +56,7 @@ async function syncPeople(){
     if(!response.ok) throw new Error("Shared sync unavailable");
     const remote = (await response.json()).people;
     if(!Array.isArray(remote)) throw new Error("Invalid shared data");
+    state.sharedReady=true;updateSyncHint();
     if(!remote.length && state.people.length){
       const migrated=[];
       for(const person of state.people) migrated.push(await createRemoteConnection(person));
@@ -61,7 +64,7 @@ async function syncPeople(){
     } else state.people=remote;
     savePeople();
     if(state.currentUser) render();
-  } catch {}
+  } catch { state.sharedReady=false;updateSyncHint(); }
   finally { syncInFlight=false; }
 }
 
@@ -201,7 +204,7 @@ function renderDuplicateSuggestions(){
   box.hidden=false;$$('[data-duplicate]',box).forEach(button=>button.onclick=()=>selectDuplicate(button.dataset.duplicate));
 }
 function openModal(){
-  const form=$("#connection-form");form.reset();state.pendingPhoto="";state.duplicateId=null;$("#person-owner").value=state.currentUser;$("#duplicate-banner").hidden=true;$("#duplicate-suggestions").hidden=true;$("#photo-fallback").open=false;$("#photo-error").textContent="";$("#save-connection").disabled=false;$("#save-connection-label").textContent="Add to network";updateIdentityPreview();$("#modal-backdrop").hidden=false;requestAnimationFrame(()=>$("#person-name").focus());
+  const form=$("#connection-form");form.reset();state.pendingPhoto="";state.duplicateId=null;$("#person-owner").value=state.currentUser;$("#duplicate-banner").hidden=true;$("#duplicate-suggestions").hidden=true;$("#photo-fallback").open=false;$("#photo-error").textContent="";$("#save-connection").disabled=false;$("#save-connection-label").textContent="Add to network";updateSyncHint();updateIdentityPreview();$("#modal-backdrop").hidden=false;requestAnimationFrame(()=>$("#person-name").focus());
 }
 function closeModal(){ $("#modal-backdrop").hidden=true;$("#duplicate-suggestions").hidden=true; }
 
