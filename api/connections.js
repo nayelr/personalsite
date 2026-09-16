@@ -40,8 +40,8 @@ function cleanPerson(input) {
   const owners = [...new Set(Array.isArray(input.owners) ? input.owners.filter(owner => MEMBERS.has(owner)) : [])];
   const name = text(input.name, 140);
   const url = text(input.url, 2048);
-  if (!name || !owners.length || !/^https?:\/\/(?:[a-z]+\.)?linkedin\.com\/in\//i.test(url)) {
-    throw new Error("A name, LinkedIn profile, and valid owner are required");
+  if (!name || !owners.length || (url && !/^https?:\/\/(?:[a-z]+\.)?linkedin\.com\/in\//i.test(url))) {
+    throw new Error("A name and valid owner are required");
   }
   return {
     id: `p_${randomUUID()}`,
@@ -78,13 +78,24 @@ export default async function handler(request, response) {
       await redis(["HSET", STORE_KEY, person.id, JSON.stringify(person)]);
       return response.status(201).json({ person });
     }
+    if (request.method === "PATCH") {
+      const input = await readJson(request);
+      const id = text(input.id, 100), owner = text(input.owner, 30);
+      if (!/^p_[a-f0-9-]{36}$/i.test(id) || !MEMBERS.has(owner)) return response.status(400).json({ error: "Valid connection and owner required" });
+      const stored = await redis(["HGET", STORE_KEY, id]);
+      if (!stored) return response.status(404).json({ error: "Connection not found" });
+      const person = typeof stored === "string" ? JSON.parse(stored) : stored;
+      person.owners = [...new Set([...(person.owners || []).filter(value => MEMBERS.has(value)), owner])];
+      await redis(["HSET", STORE_KEY, id, JSON.stringify(person)]);
+      return response.status(200).json({ person });
+    }
     if (request.method === "DELETE") {
       const id = text(request.query?.id, 100);
       if (!/^p_[a-f0-9-]{36}$/i.test(id)) return response.status(400).json({ error: "Valid connection ID required" });
       await redis(["HDEL", STORE_KEY, id]);
       return response.status(200).json({ removed: id });
     }
-    response.setHeader("Allow", "GET, POST, DELETE");
+    response.setHeader("Allow", "GET, POST, PATCH, DELETE");
     return response.status(405).json({ error: "Method not allowed" });
   } catch (error) {
     const unavailable = error.message === "Shared storage is not configured";

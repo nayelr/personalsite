@@ -8,7 +8,7 @@ const MEMBER_PROFILES = {
 };
 const DUMMY_IDS = new Set(["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12"]);
 
-const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, people:loadPeople() };
+const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, pendingPhoto:"", duplicateId:null, people:loadPeople() };
 const $ = (selector, root=document) => root.querySelector(selector);
 const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
 const initials = name => name.split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
@@ -39,6 +39,11 @@ let syncInFlight = false;
 async function createRemoteConnection(person){
   const response = await fetch("/api/connections", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(person) });
   if(!response.ok) throw new Error("Shared save failed");
+  return (await response.json()).person;
+}
+async function updateRemoteConnection(id,owner){
+  const response=await fetch("/api/connections",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,owner})});
+  if(!response.ok)throw new Error("Shared update failed");
   return (await response.json()).person;
 }
 async function syncPeople(){
@@ -139,20 +144,22 @@ function renderGraph(people){
 
 function renderRecent(people){
   const sorted=[...people].sort((a,b)=>b.added.localeCompare(a.added)).slice(0,4);
-  $("#recent-grid").innerHTML=sorted.map(p=>`<article class="person-card" data-person="${p.id}" tabindex="0"><div class="person-card-top">${avatarMarkup(p)}<span class="owner-dot" style="background:${COLORS[p.owners[0]]}" title="${p.owners.join(", ")}"></span></div><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.role)} · ${escapeHtml(p.company)}</p><time>${new Date(p.added+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"})}</time></article>`).join("");
+  if(!sorted.length){$("#recent-grid").innerHTML=`<div class="empty-connections"><span>＋</span><div><strong>Your circle starts here.</strong><p>Add the first person, then everyone’s connections will come together on the map.</p></div><button id="empty-add" class="secondary-button">Add first connection</button></div>`;$("#empty-add").onclick=openModal;return;}
+  $("#recent-grid").innerHTML=sorted.map(p=>`<article class="person-card" data-person="${p.id}" tabindex="0"><div class="person-card-top">${avatarMarkup(p)}<span class="owner-dot" style="background:${COLORS[p.owners[0]]}" title="${p.owners.join(", ")}"></span></div><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml([p.role,p.company].filter(Boolean).join(" · ")||"Details not added yet")}</p><time>${new Date(p.added+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"})}</time></article>`).join("");
   $$("[data-person]").forEach(card=>{card.addEventListener("click",()=>openDetail(card.dataset.person));card.addEventListener("keydown",e=>{if(e.key==="Enter")openDetail(card.dataset.person);});});
 }
 
 function renderList(people){
-  $("#people-list").innerHTML=people.map(p=>`<button class="list-row" data-list-person="${p.id}"><span class="list-person">${avatarMarkup(p)}<span><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></span></span><span>${p.owners.map(escapeHtml).join(", ")}</span><span>${escapeHtml(p.company)}</span><span>${escapeHtml(p.location)}</span></button>`).join("");
+  $("#people-list").innerHTML=people.length?people.map(p=>`<button class="list-row" data-list-person="${p.id}"><span class="list-person">${avatarMarkup(p)}<span><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role||p.company||"Details not added yet")}</small></span></span><span>${p.owners.map(escapeHtml).join(", ")}</span><span>${escapeHtml(p.company||"—")}</span><span>${escapeHtml(p.location||"—")}</span></button>`).join(""):`<div class="empty-list">No connections in this view yet.</div>`;
   $$("[data-list-person]").forEach(row=>row.addEventListener("click",()=>openDetail(row.dataset.listPerson)));
 }
 
 function openDetail(id){
   const p=state.people.find(x=>x.id===id); if(!p)return; state.selectedId=id;
-  $("#detail-content").innerHTML=`<div class="detail-hero">${avatarMarkup(p)}<h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.role)} at ${escapeHtml(p.company)}</p><p>${escapeHtml(p.location)}</p><a class="detail-link" href="${escapeHtml(p.url)}" target="_blank" rel="noreferrer">View LinkedIn ↗</a></div><div class="detail-block"><h3>Connected through</h3>${p.owners.map(o=>`<div class="through-row">${memberAvatarMarkup(o)}<strong>${o}</strong></div>`).join("")}</div><div class="detail-block"><h3>How you know them</h3><p>${escapeHtml(p.note)||"No note added yet."}</p></div><div class="detail-block"><h3>Added</h3><p>${new Date(p.added+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}</p></div><div class="detail-actions"><button class="secondary-button" id="copy-link">Copy LinkedIn</button><button class="secondary-button danger-button" id="delete-person">Remove</button></div>`;
+  const roleLine=[p.role,p.company].filter(Boolean).join(" at ");
+  $("#detail-content").innerHTML=`<div class="detail-hero">${avatarMarkup(p)}<h2>${escapeHtml(p.name)}</h2>${roleLine?`<p>${escapeHtml(roleLine)}</p>`:""}${p.location?`<p>${escapeHtml(p.location)}</p>`:""}${p.url?`<a class="detail-link" href="${escapeHtml(p.url)}" target="_blank" rel="noreferrer">View LinkedIn ↗</a>`:""}</div><div class="detail-block"><h3>Connected through</h3>${p.owners.map(o=>`<div class="through-row">${memberAvatarMarkup(o)}<strong>${o}</strong></div>`).join("")}</div><div class="detail-block"><h3>How you know them</h3><p>${escapeHtml(p.note)||"No note added yet."}</p></div><div class="detail-block"><h3>Added</h3><p>${new Date(p.added+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}</p></div><div class="detail-actions">${p.url?`<button class="secondary-button" id="copy-link">Copy LinkedIn</button>`:""}<button class="secondary-button danger-button" id="delete-person">Remove</button></div>`;
   $("#detail-panel").classList.add("open");$("#detail-panel").setAttribute("aria-hidden","false");
-  $("#copy-link").onclick=()=>{navigator.clipboard?.writeText(p.url);showToast("LinkedIn link copied");};
+  const copyLink=$("#copy-link");if(copyLink)copyLink.onclick=()=>{navigator.clipboard?.writeText(p.url);showToast("LinkedIn link copied");};
   $("#delete-person").onclick=async()=>{ if(confirm(`Remove ${p.name} from the network?`)){state.people=state.people.filter(x=>x.id!==id);savePeople();closeDetail();render();try{if(id.startsWith("p_")){const response=await fetch(`/api/connections?id=${encodeURIComponent(id)}`,{method:"DELETE"});if(!response.ok)throw new Error();}showToast("Connection removed for everyone");}catch{showToast("Removed here; shared sync will retry");}} };
 }
 function closeDetail(){ $("#detail-panel").classList.remove("open");$("#detail-panel").setAttribute("aria-hidden","true");state.selectedId=null; }
@@ -160,25 +167,43 @@ function closeDetail(){ $("#detail-panel").classList.remove("open");$("#detail-p
 function search(query){
   const q=query.trim().toLowerCase(), box=$("#search-results"); if(!q){box.hidden=true;return;}
   const hits=state.people.filter(p=>[p.name,p.company,p.role,p.location,...p.owners].join(" ").toLowerCase().includes(q)).slice(0,7);
-  box.innerHTML=hits.length?hits.map(p=>`<button class="search-result" data-result="${p.id}">${avatarMarkup(p)}<span class="result-copy"><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)} at ${escapeHtml(p.company)}</small></span><span class="path-badge">via ${p.owners.join(" + ")}</span></button>`).join(""):`<div class="search-result"><span class="result-copy"><strong>No one found</strong><small>Try a name, company, school, or location.</small></span></div>`;
+  box.innerHTML=hits.length?hits.map(p=>`<button class="search-result" data-result="${p.id}">${avatarMarkup(p)}<span class="result-copy"><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml([p.role,p.company].filter(Boolean).join(" · ")||"Details not added yet")}</small></span><span class="path-badge">via ${p.owners.join(" + ")}</span></button>`).join(""):`<div class="search-result"><span class="result-copy"><strong>No one found</strong><small>Try a name, company, school, or location.</small></span></div>`;
   box.hidden=false; $$("[data-result]",box).forEach(b=>b.onclick=()=>{box.hidden=true;$("#global-search").value="";openDetail(b.dataset.result);});
 }
 
+const normalizePersonName=value=>String(value||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+function updateIdentityPreview(){
+  const preview=$("#profile-preview"),name=$("#person-name").value.trim(),photo=state.pendingPhoto;
+  preview.className=`person-avatar identity-avatar${photo?" has-photo":""}`;
+  preview.innerHTML=`<span class="avatar-fallback">${name?initials(name):"?"}</span>${photo?`<img src="${escapeHtml(photo)}" alt="" onerror="this.remove();this.parentElement.classList.remove('has-photo')">`:""}`;
+}
+function clearDuplicate(){
+  state.duplicateId=null;$("#duplicate-banner").hidden=true;$("#save-connection").disabled=false;$("#save-connection-label").textContent="Add to network";
+}
+function updateDuplicateBanner(){
+  const person=state.people.find(item=>item.id===state.duplicateId),banner=$("#duplicate-banner"),owner=$("#person-owner").value;
+  if(!person){clearDuplicate();return;}
+  const already=person.owners.includes(owner);
+  banner.innerHTML=`${avatarMarkup(person)}<div class="duplicate-banner-copy"><strong>${already?"Already in your network":"Already in The Collective"}</strong><span>Connected through ${person.owners.map(escapeHtml).join(" + ")}${already?"":" — add "+escapeHtml(owner)+" too"}</span></div><button type="button" id="clear-duplicate">Not them</button>`;
+  banner.hidden=false;$("#clear-duplicate").onclick=()=>{clearDuplicate();renderDuplicateSuggestions();};
+  $("#save-connection").disabled=already;$("#save-connection-label").textContent=already?"Already connected":`Connect ${owner} too`;
+}
+function selectDuplicate(id){
+  const person=state.people.find(item=>item.id===id);if(!person)return;
+  state.duplicateId=id;state.pendingPhoto=person.photo||"";$("#person-name").value=person.name;$("#person-company").value=person.company||"";$("#person-role").value=person.role||"";$("#person-location").value=person.location||"";$("#linkedin-url").value=person.url||"";$("#duplicate-suggestions").hidden=true;updateIdentityPreview();updateDuplicateBanner();
+}
+function renderDuplicateSuggestions(){
+  const box=$("#duplicate-suggestions"),query=normalizePersonName($("#person-name").value);
+  if(state.duplicateId||query.length<2){box.hidden=true;return;}
+  const matches=state.people.filter(person=>normalizePersonName(person.name).includes(query)).slice(0,5);
+  if(!matches.length){box.hidden=true;return;}
+  box.innerHTML=matches.map(person=>`<button type="button" class="duplicate-option" data-duplicate="${escapeHtml(person.id)}">${avatarMarkup(person)}<span class="duplicate-option-copy"><strong>${escapeHtml(person.name)}</strong><small>${escapeHtml([person.role,person.company].filter(Boolean).join(" · ")||"Saved connection")}</small></span><span class="duplicate-via">via ${person.owners.map(escapeHtml).join(" + ")}</span></button>`).join("");
+  box.hidden=false;$$('[data-duplicate]',box).forEach(button=>button.onclick=()=>selectDuplicate(button.dataset.duplicate));
+}
 function openModal(){
-  state.pendingPhoto="";$("#modal-backdrop").hidden=false;$("#add-step-link").hidden=false;$("#connection-form").hidden=true;$("#linkedin-url").value="";$("#person-photo").value="";$("#person-photo-file").value="";$("#photo-fallback").open=false;$("#linkedin-error").textContent="";$("#photo-error").textContent="";$("#linkedin-url").focus();
+  const form=$("#connection-form");form.reset();state.pendingPhoto="";state.duplicateId=null;$("#person-owner").value=state.currentUser;$("#duplicate-banner").hidden=true;$("#duplicate-suggestions").hidden=true;$("#photo-fallback").open=false;$("#photo-error").textContent="";$("#save-connection").disabled=false;$("#save-connection-label").textContent="Add to network";updateIdentityPreview();$("#modal-backdrop").hidden=false;requestAnimationFrame(()=>$("#person-name").focus());
 }
-function closeModal(){ $("#modal-backdrop").hidden=true; }
-
-function parseLinkedInSlug(url){
-  try { const u=new URL(url); if(!u.hostname.toLowerCase().includes("linkedin.com"))return null; const m=u.pathname.match(/\/in\/([^/?#]+)/i); if(!m)return null; return m[1].replace(/[-_]+/g," ").replace(/\b\w/g,c=>c.toUpperCase()).replace(/\s\d+$/,''); } catch{return null;}
-}
-
-function updateProfilePreview(name,message){
-  const preview=$("#profile-preview"), previewPerson={name:name||"LinkedIn profile",photo:state.pendingPhoto};
-  $(".person-avatar",preview).outerHTML=avatarMarkup(previewPerson,"person-avatar large");
-  $("strong",preview).textContent=name||"LinkedIn profile";
-  $("span",preview).textContent=message||"Profile ready to review";
-}
+function closeModal(){ $("#modal-backdrop").hidden=true;$("#duplicate-suggestions").hidden=true; }
 
 function compressPhoto(file){
   return new Promise((resolve,reject)=>{
@@ -201,24 +226,16 @@ function compressPhoto(file){
   });
 }
 
-async function enrichProfile(){
-  const url=$("#linkedin-url").value.trim(), guessed=parseLinkedInSlug(url); if(!guessed){$("#linkedin-error").textContent="Paste a valid linkedin.com/in/… profile link.";return;}
-  const button=$("#continue-add"); button.disabled=true; button.textContent="Finding public details…"; $("#linkedin-error").textContent="";
-  let data={name:guessed,company:"",role:"",location:"",photo:""};
-  try { const res=await fetch(`/api/linkedin?url=${encodeURIComponent(url)}`); if(!res.ok)throw new Error();data={...data,...await res.json()};if(/(?:profile|page)\s+not\s+found|linkedin strengthens and extends|join linkedin|sign in to view/i.test([data.name,data.role,data.company].join(" ")))data={name:guessed,company:"",role:"",location:"",photo:"",source:"slug"};if(data.source==="slug")$("#linkedin-error").textContent="LinkedIn did not expose public details for this profile. Review the name and fill in any missing fields."; }
-  catch { $("#linkedin-error").textContent="LinkedIn could not be reached. You can still enter the profile manually."; }
-  button.disabled=false;button.innerHTML="Continue <span>→</span>";
-  state.pendingPhoto=data.photo||"";$("#person-name").value=data.name||guessed;$("#person-company").value=data.company||"";$("#person-role").value=data.role||"";$("#person-location").value=data.location||"";
-  $("#person-photo").value=state.pendingPhoto&&!state.pendingPhoto.startsWith("data:")?state.pendingPhoto:"";
-  $("#photo-fallback").open=!state.pendingPhoto;
-  const importedDetails=data.role||data.company||data.location;
-  updateProfilePreview(data.name||guessed,data.source==="slug"?"Public details unavailable — complete below":state.pendingPhoto?"Photo and public details imported":importedDetails?"Public details imported; photo hidden":"Review and complete the profile below");
-  $("#add-step-link").hidden=true;$("#connection-form").hidden=false;$("#person-name").focus();
-}
-
 async function addConnection(e){
-  e.preventDefault(); const owner=$("#person-owner").value; const person={id:`p${Date.now()}`,name:$("#person-name").value.trim(),company:$("#person-company").value.trim()||"Independent",role:$("#person-role").value.trim()||"Connection",location:$("#person-location").value.trim()||"Location not listed",photo:state.pendingPhoto||$("#person-photo").value.trim()||"",owners:[owner],note:$("#person-note").value.trim(),url:$("#linkedin-url").value.trim(),added:new Date().toISOString().slice(0,10)};
+  e.preventDefault(); const owner=$("#person-owner").value,url=$("#linkedin-url").value.trim(); const person={id:`p${Date.now()}`,name:$("#person-name").value.trim(),company:$("#person-company").value.trim(),role:$("#person-role").value.trim(),location:$("#person-location").value.trim(),photo:state.pendingPhoto||$("#person-photo").value.trim()||"",owners:[owner],note:$("#person-note").value.trim(),url,added:new Date().toISOString().slice(0,10)};
   if(!person.name)return;
+  const normalized=normalizePersonName(person.name),existing=state.people.find(item=>item.id===state.duplicateId||normalizePersonName(item.name)===normalized||(url&&item.url===url));
+  if(existing){
+    if(existing.owners.includes(owner)){closeModal();openDetail(existing.id);showToast(`${existing.name} is already connected through ${owner}`);return;}
+    let updated={...existing,owners:[...existing.owners,owner]},shared=false;
+    try{if(existing.id.startsWith("p_")){updated=await updateRemoteConnection(existing.id,owner);shared=true;}}catch{}
+    state.people=state.people.map(item=>item.id===existing.id?updated:item);savePeople();closeModal();render();openDetail(updated.id);showToast(shared?`${owner} added to ${updated.name}`:`${updated.name} linked through ${owner} on this device`);return;
+  }
   let saved=person, shared=false;
   try { saved=await createRemoteConnection(person); shared=true; } catch {}
   state.people.unshift(saved);savePeople();closeModal();render();showToast(shared?`${saved.name} added for everyone`:`${saved.name} saved on this device`);openDetail(saved.id);e.target.reset();$("#person-owner").value=state.currentUser;
@@ -235,15 +252,15 @@ function bindEvents(){
   $("#user-menu").onclick=logout;$("#brand-home").onclick=()=>{state.currentOwner="all";render();};
   $$(".nav-item").forEach(b=>b.onclick=()=>{state.currentOwner=b.dataset.owner;render();});
   $("#add-button").onclick=openModal;$$('[data-close-modal]').forEach(b=>b.onclick=closeModal);$("#modal-backdrop").addEventListener("click",e=>{if(e.target===e.currentTarget)closeModal();});
-  $("#continue-add").onclick=enrichProfile;$("#change-link").onclick=()=>{$("#add-step-link").hidden=false;$("#connection-form").hidden=true;};$("#connection-form").addEventListener("submit",addConnection);
-  $("#person-photo").addEventListener("input",e=>{state.pendingPhoto=e.target.value.trim();updateProfilePreview($("#person-name").value,state.pendingPhoto?"Using the photo URL below":"Photo removed");});
+  $("#connection-form").addEventListener("submit",addConnection);$("#person-name").addEventListener("input",()=>{if(state.duplicateId&&normalizePersonName($("#person-name").value)!==normalizePersonName(state.people.find(item=>item.id===state.duplicateId)?.name))clearDuplicate();updateIdentityPreview();renderDuplicateSuggestions();});$("#person-owner").addEventListener("change",()=>{if(state.duplicateId)updateDuplicateBanner();});
+  $("#person-photo").addEventListener("input",e=>{state.pendingPhoto=e.target.value.trim();updateIdentityPreview();});
   $("#person-photo-file").addEventListener("change",async e=>{
     $("#photo-error").textContent="";
-    try { state.pendingPhoto=await compressPhoto(e.target.files?.[0]);$("#person-photo").value="";updateProfilePreview($("#person-name").value,"Uploaded photo ready"); }
+    try { state.pendingPhoto=await compressPhoto(e.target.files?.[0]);$("#person-photo").value="";updateIdentityPreview(); }
     catch(error) { $("#photo-error").textContent=error.message; }
   });
   $("#close-detail").onclick=closeDetail;$("#global-search").addEventListener("input",e=>search(e.target.value));
-  document.addEventListener("click",e=>{if(!e.target.closest(".global-search-wrap"))$("#search-results").hidden=true;});
+  document.addEventListener("click",e=>{if(!e.target.closest(".global-search-wrap"))$("#search-results").hidden=true;if(!e.target.closest(".name-field"))$("#duplicate-suggestions").hidden=true;});
   document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("#global-search").focus();}if(e.key==="Escape"){closeModal();closeDetail();}});
   $$("[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));$("#view-all").onclick=()=>setView("list");
   $("#zoom-in").onclick=()=>{state.zoom=Math.min(1.35,state.zoom+.1);applyZoom();};$("#zoom-out").onclick=()=>{state.zoom=Math.max(.75,state.zoom-.1);applyZoom();};$("#zoom-reset").onclick=()=>{state.zoom=1;applyZoom();};
@@ -254,7 +271,7 @@ function registerWebMcp(){
   const context=document.modelContext;if(!context?.registerTool)return;
   const tools=[
     {name:"search_network",title:"Search network",description:"Search all four friends' saved connections by person, company, role, location, or owner.",inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"],additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:({query})=>{if(typeof query!=="string"||!query.trim())throw new Error("query is required");return state.people.filter(p=>[p.name,p.company,p.role,p.location,...p.owners].join(" ").toLowerCase().includes(query.toLowerCase())).map(({id,name,role,company,owners})=>({id,name,role,company,owners}));}},
-    {name:"add_network_connection",title:"Add network connection",description:"Add a reviewed LinkedIn connection to one member's network.",inputSchema:{type:"object",properties:{name:{type:"string"},linkedinUrl:{type:"string"},owner:{type:"string",enum:MEMBERS},role:{type:"string"},company:{type:"string"},location:{type:"string"},note:{type:"string"}},required:["name","linkedinUrl","owner"],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async(input)=>{if(!input.name?.trim()||!parseLinkedInSlug(input.linkedinUrl)||!MEMBERS.includes(input.owner))throw new Error("Valid name, LinkedIn URL, and owner are required");let person={name:input.name.trim(),url:input.linkedinUrl,owners:[input.owner],role:input.role||"Connection",company:input.company||"Independent",location:input.location||"Location not listed",note:input.note||"",added:new Date().toISOString().slice(0,10)};person=await createRemoteConnection(person);state.people.unshift(person);savePeople();render();return {id:person.id,name:person.name,owner:input.owner,status:"added"};}}
+    {name:"add_network_connection",title:"Add network connection",description:"Add a person manually to one member's network, merging an existing name instead of duplicating it.",inputSchema:{type:"object",properties:{name:{type:"string"},linkedinUrl:{type:"string"},owner:{type:"string",enum:MEMBERS},role:{type:"string"},company:{type:"string"},location:{type:"string"},note:{type:"string"}},required:["name","owner"],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async(input)=>{if(!input.name?.trim()||!MEMBERS.includes(input.owner))throw new Error("Valid name and owner are required");const existing=state.people.find(person=>normalizePersonName(person.name)===normalizePersonName(input.name));if(existing){if(!existing.owners.includes(input.owner)){const updated=existing.id.startsWith("p_")?await updateRemoteConnection(existing.id,input.owner):{...existing,owners:[...existing.owners,input.owner]};state.people=state.people.map(person=>person.id===existing.id?updated:person);savePeople();render();}return {id:existing.id,name:existing.name,owner:input.owner,status:"merged"};}let person={name:input.name.trim(),url:input.linkedinUrl||"",owners:[input.owner],role:input.role||"",company:input.company||"",location:input.location||"",note:input.note||"",added:new Date().toISOString().slice(0,10)};person=await createRemoteConnection(person);state.people.unshift(person);savePeople();render();return {id:person.id,name:person.name,owner:input.owner,status:"added"};}}
   ];
   tools.forEach(tool=>Promise.resolve(context.registerTool(tool)).catch(()=>{}));
 }
