@@ -8,7 +8,7 @@ const MEMBER_PROFILES = {
 };
 const DUMMY_IDS = new Set(["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12"]);
 
-const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, selectedId:null, pendingPhoto:"", duplicateId:null, sharedReady:false, people:loadPeople() };
+const state = { currentUser:null, currentOwner:"all", view:"map", zoom:1, listLimit:40, listSort:"recent", selectedId:null, pendingPhoto:"", duplicateId:null, sharedReady:false, people:loadPeople() };
 const $ = (selector, root=document) => root.querySelector(selector);
 const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
 const initials = name => name.split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
@@ -95,6 +95,10 @@ function render(){
   $("#all-count").textContent = state.people.length;
   const shared = state.people.filter(p=>p.owners.length>1).length;
   $("#shared-count").textContent = `${shared} shared connection${shared===1?"":"s"}`;
+  $("#total-stat").textContent = state.people.length;
+  $("#shared-stat").textContent = shared;
+  $("#company-stat").textContent = new Set(state.people.map(p=>p.company?.trim().toLowerCase()).filter(Boolean)).size;
+  $("#location-stat").textContent = new Set(state.people.map(p=>p.location?.trim().toLowerCase()).filter(Boolean)).size;
   $("#view-kicker").textContent = state.currentOwner === "all" ? "The full circle" : `${state.currentOwner}’s network`;
   $("#view-title").textContent = state.currentOwner === "all" ? "Your people, mapped." : `${shown.length} people in view.`;
   const viewProfile = $("#view-profile");
@@ -118,6 +122,13 @@ function nodePosition(index,total,ownerIndex){
 
 function renderGraph(people){
   const nodes = $("#network-nodes"), svg=$("#network-lines"); nodes.innerHTML=""; svg.innerHTML="";
+  const maxNodes=window.innerWidth<=680?12:20;
+  const visible=[...people].sort((a,b)=>(b.owners.length-a.owners.length)||String(b.added).localeCompare(String(a.added))).slice(0,maxNodes);
+  const status=$("#map-status"),hiddenCount=Math.max(0,people.length-visible.length);
+  status.hidden=!hiddenCount;
+  status.innerHTML=hiddenCount?`<strong>Showing ${visible.length} of ${people.length}</strong><span>Open the directory to browse everyone.</span><button type="button" id="open-directory">View all</button>`:"";
+  if(hiddenCount) $("#open-directory").onclick=()=>setView("list");
+  $("#map-view").classList.toggle("dense",visible.length>=10);
   const ownerPositions = {};
   const activeOwners = state.currentOwner === "all" ? MEMBERS : [state.currentOwner];
   activeOwners.forEach((owner,i)=>{
@@ -127,13 +138,15 @@ function renderGraph(people){
     node.addEventListener("click",()=>{state.currentOwner=owner;render();}); nodes.appendChild(node);
   });
   const center = state.currentOwner === "all" ? {x:50,y:50} : ownerPositions[state.currentOwner];
-  people.forEach((p,i)=>{
+  const groupTotals=Object.fromEntries(MEMBERS.map(owner=>[owner,visible.filter(person=>person.owners[0]===owner).length]));
+  const groupSeen=Object.fromEntries(MEMBERS.map(owner=>[owner,0]));
+  visible.forEach((p,i)=>{
     let pos;
     if(state.currentOwner === "all"){
-      const primary=ownerPositions[p.owners[0]]; const a=((i*137.5)%360)*Math.PI/180; const spread=p.owners.length>1?14:18;
+      const primary=ownerPositions[p.owners[0]],groupIndex=groupSeen[p.owners[0]]++,groupTotal=groupTotals[p.owners[0]]; const a=((Math.PI*2*groupIndex/Math.max(groupTotal,1))-Math.PI/2); const spread=p.owners.length>1?13:17;
       pos={x:primary.x+Math.cos(a)*spread,y:primary.y+Math.sin(a)*spread};
       pos.x=Math.max(8,Math.min(92,pos.x)); pos.y=Math.max(9,Math.min(91,pos.y));
-    } else { pos=nodePosition(i,people.length); }
+    } else { pos=nodePosition(i,visible.length); }
     p.__pos=pos;
     const node=document.createElement("button"); node.className="graph-node"; node.style.left=pos.x+"%"; node.style.top=pos.y+"%"; node.dataset.id=p.id; node.innerHTML=`${avatarMarkup(p,"node-orb")}<strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.company)}</small>`;node.querySelector(".node-orb").style.background=COLORS[p.owners[0]];
     node.addEventListener("click",()=>openDetail(p.id)); nodes.appendChild(node);
@@ -152,8 +165,20 @@ function renderRecent(people){
   $$("[data-person]").forEach(card=>{card.addEventListener("click",()=>openDetail(card.dataset.person));card.addEventListener("keydown",e=>{if(e.key==="Enter")openDetail(card.dataset.person);});});
 }
 
+function sortedPeople(people){
+  const sorted=[...people];
+  if(state.listSort==="name") return sorted.sort((a,b)=>a.name.localeCompare(b.name));
+  if(state.listSort==="company") return sorted.sort((a,b)=>(a.company||"zzzz").localeCompare(b.company||"zzzz")||a.name.localeCompare(b.name));
+  if(state.listSort==="shared") return sorted.sort((a,b)=>b.owners.length-a.owners.length||a.name.localeCompare(b.name));
+  return sorted.sort((a,b)=>String(b.added).localeCompare(String(a.added))||a.name.localeCompare(b.name));
+}
+
 function renderList(people){
-  $("#people-list").innerHTML=people.length?people.map(p=>`<button class="list-row" data-list-person="${p.id}"><span class="list-person">${avatarMarkup(p)}<span><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role||p.company||"Details not added yet")}</small></span></span><span>${p.owners.map(escapeHtml).join(", ")}</span><span>${escapeHtml(p.company||"—")}</span><span>${escapeHtml(p.location||"—")}</span></button>`).join(""):`<div class="empty-list">No connections in this view yet.</div>`;
+  const sorted=sortedPeople(people),visible=sorted.slice(0,state.listLimit);
+  $("#list-count").textContent=`${people.length} ${people.length===1?"person":"people"}`;
+  $("#people-list").innerHTML=visible.length?visible.map(p=>`<button class="list-row" data-list-person="${p.id}"><span class="list-person">${avatarMarkup(p)}<span><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role||p.company||"Details not added yet")}</small></span></span><span class="list-owners">${p.owners.map(owner=>`<i style="--owner-color:${COLORS[owner]}">${escapeHtml(owner)}</i>`).join("")}</span><span class="list-meta" data-label="Company">${escapeHtml(p.company||"Not added")}</span><span class="list-meta" data-label="Location">${escapeHtml(p.location||"Not added")}</span></button>`).join(""):`<div class="empty-list">No connections in this view yet.</div>`;
+  $("#list-more-wrap").hidden=visible.length>=sorted.length;
+  $("#list-more").textContent=`Show ${Math.min(40,sorted.length-visible.length)} more`;
   $$("[data-list-person]").forEach(row=>row.addEventListener("click",()=>openDetail(row.dataset.listPerson)));
 }
 
@@ -245,7 +270,7 @@ async function addConnection(e){
 }
 
 function setView(view){
-  state.view=view;$("#map-view").hidden=view!=="map";$("#list-view").hidden=view!=="list";$$("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  state.view=view;$("#map-view").hidden=view!=="map";$("#list-view").hidden=view!=="list";$(".recent-section").hidden=view==="list";$$("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
 }
 function applyZoom(){ const t=`scale(${state.zoom})`;$("#network-lines").style.transform=t;$("#network-nodes").style.transform=t; }
 function showToast(message){const t=$("#toast");t.textContent=message;t.classList.add("show");clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),2200);}
@@ -253,7 +278,7 @@ function showToast(message){const t=$("#toast");t.textContent=message;t.classLis
 function bindEvents(){
   $("#login-form").addEventListener("submit",e=>{e.preventDefault();login($("#login-name").value);});$$('[data-login]').forEach(b=>b.onclick=()=>login(b.dataset.login));
   $("#user-menu").onclick=logout;$("#brand-home").onclick=()=>{state.currentOwner="all";render();};
-  $$(".nav-item").forEach(b=>b.onclick=()=>{state.currentOwner=b.dataset.owner;render();});
+  $$(".nav-item").forEach(b=>b.onclick=()=>{state.currentOwner=b.dataset.owner;state.listLimit=40;render();});
   $("#add-button").onclick=openModal;$$('[data-close-modal]').forEach(b=>b.onclick=closeModal);$("#modal-backdrop").addEventListener("click",e=>{if(e.target===e.currentTarget)closeModal();});
   $("#connection-form").addEventListener("submit",addConnection);$("#person-name").addEventListener("input",()=>{if(state.duplicateId&&normalizePersonName($("#person-name").value)!==normalizePersonName(state.people.find(item=>item.id===state.duplicateId)?.name))clearDuplicate();updateIdentityPreview();renderDuplicateSuggestions();});$("#person-owner").addEventListener("change",()=>{if(state.duplicateId)updateDuplicateBanner();});
   $("#person-photo").addEventListener("input",e=>{state.pendingPhoto=e.target.value.trim();updateIdentityPreview();});
@@ -266,6 +291,8 @@ function bindEvents(){
   document.addEventListener("click",e=>{if(!e.target.closest(".global-search-wrap"))$("#search-results").hidden=true;if(!e.target.closest(".name-field"))$("#duplicate-suggestions").hidden=true;});
   document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("#global-search").focus();}if(e.key==="Escape"){closeModal();closeDetail();}});
   $$("[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));$("#view-all").onclick=()=>setView("list");
+  $("#list-sort").addEventListener("change",e=>{state.listSort=e.target.value;state.listLimit=40;renderList(filteredPeople());});
+  $("#list-more").onclick=()=>{state.listLimit+=40;renderList(filteredPeople());};
   $("#zoom-in").onclick=()=>{state.zoom=Math.min(1.35,state.zoom+.1);applyZoom();};$("#zoom-out").onclick=()=>{state.zoom=Math.max(.75,state.zoom-.1);applyZoom();};$("#zoom-reset").onclick=()=>{state.zoom=1;applyZoom();};
   window.addEventListener("resize",()=>{if(state.currentUser&&state.view==="map")renderGraph(filteredPeople());});
 }

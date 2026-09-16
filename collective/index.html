@@ -74,16 +74,29 @@
           </div>
         </section>
 
+        <section class="network-insights" aria-label="Network summary">
+          <article><span>Total people</span><strong id="total-stat">0</strong><small>across the collective</small></article>
+          <article><span>Shared</span><strong id="shared-stat">0</strong><small>known by multiple members</small></article>
+          <article><span>Companies</span><strong id="company-stat">0</strong><small>organizations represented</small></article>
+          <article><span>Locations</span><strong id="location-stat">0</strong><small>places in the network</small></article>
+        </section>
+
         <section id="map-view" class="map-view" aria-label="Connection map">
           <svg id="network-lines" class="network-lines" aria-hidden="true"></svg>
           <div id="network-nodes" class="network-nodes"></div>
+          <div id="map-status" class="map-status" hidden></div>
           <div class="map-legend"><span><i class="legend-line"></i> Connection</span><span><i class="legend-dash"></i> Shared</span></div>
           <div class="zoom-controls"><button id="zoom-in" aria-label="Zoom in">＋</button><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-reset" aria-label="Reset zoom">↗</button></div>
         </section>
 
         <section id="list-view" class="list-view" hidden>
+          <div class="directory-toolbar">
+            <div><strong id="list-count">0 people</strong><span>Every connection in this view</span></div>
+            <label>Sort by<select id="list-sort"><option value="recent">Recently added</option><option value="name">Name A–Z</option><option value="company">Company</option><option value="shared">Most shared</option></select></label>
+          </div>
           <div class="list-header"><span>Person</span><span>Connected through</span><span>Company</span><span>Location</span></div>
           <div id="people-list"></div>
+          <div id="list-more-wrap" class="list-more-wrap" hidden><button id="list-more" class="secondary-button">Show more</button></div>
         </section>
 
         <section class="recent-section">
