@@ -36,6 +36,10 @@ function text(value, limit) {
   return String(value || "").trim().slice(0, limit);
 }
 
+function normalizedName(value) {
+  return text(value, 140).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
 function cleanPerson(input) {
   const owners = [...new Set(Array.isArray(input.owners) ? input.owners.filter(owner => MEMBERS.has(owner)) : [])];
   const name = text(input.name, 140);
@@ -75,6 +79,14 @@ export default async function handler(request, response) {
     }
     if (request.method === "POST") {
       const person = cleanPerson(await readJson(request));
+      const existing = parsePeople(await redis(["HGETALL", STORE_KEY])).find(item =>
+        normalizedName(item.name) === normalizedName(person.name) || (person.url && item.url === person.url)
+      );
+      if (existing) {
+        existing.owners = [...new Set([...(existing.owners || []).filter(value => MEMBERS.has(value)), ...person.owners])];
+        await redis(["HSET", STORE_KEY, existing.id, JSON.stringify(existing)]);
+        return response.status(200).json({ person: existing, merged: true });
+      }
       await redis(["HSET", STORE_KEY, person.id, JSON.stringify(person)]);
       return response.status(201).json({ person });
     }
