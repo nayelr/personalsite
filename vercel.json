@@ -28,6 +28,10 @@
       "dest": "/collective/index.html"
     },
     {
+      "src": "/tj/?",
+      "dest": "/tj/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

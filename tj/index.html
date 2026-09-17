@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TJ Founder Atlas — nayel rehman</title>
+    <meta name="description" content="A source-backed database of founders and companies connected to Thomas Jefferson High School for Science and Technology." />
+    <meta name="theme-color" content="#e8e4dc" />
+    <link rel="icon" href="/public/favicon.ico" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#explore">skip to the database</a>
+    <header class="site-header shell">
+      <a class="wordmark" href="/">nayel rehman</a>
+      <span class="header-meta"><i></i>public research project</span>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <p class="eyebrow">thomas jefferson high school for science and technology</p>
+        <h1>the tj founder atlas</h1>
+        <p class="hero-copy">A source-backed map of the companies, nonprofits, and investment firms founded by TJ alumni—from early internet companies to the newest AI startups.</p>
+        <div class="hero-actions">
+          <a class="primary-link" href="#explore">explore the database <span>↓</span></a>
+          <a class="text-link" href="#methodology">read the methodology</a>
+        </div>
+        <p class="research-date" id="research-date">researched through september 2026</p>
+      </section>
+
+      <section class="stats shell" aria-label="Database overview">
+        <article><strong id="founder-stat">—</strong><span>verified founders</span></article>
+        <article><strong id="company-stat">—</strong><span>organizations</span></article>
+        <article><strong id="relationship-stat">—</strong><span>founder–company links</span></article>
+        <article><strong id="funding-stat">—</strong><span>captured disclosed funding</span></article>
+      </section>
+
+      <section class="explorer shell" id="explore">
+        <div class="section-heading">
+          <div><p class="kicker">the database</p><h2>follow the network</h2></div>
+          <p>Search every verified relationship, or narrow the list by class, industry, status, and financing model.</p>
+        </div>
+
+        <div class="view-switcher" role="tablist" aria-label="Database view">
+          <button class="active" data-view="founders" role="tab" aria-selected="true">founders</button>
+          <button data-view="companies" role="tab" aria-selected="false">companies</button>
+        </div>
+
+        <div class="database-layout">
+          <aside class="filters" aria-label="Database filters">
+            <label class="field-label" for="search-input">search</label>
+            <div class="search-field">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.4-3.4"></path></svg>
+              <input id="search-input" type="search" autocomplete="off" placeholder="name, company, school…" />
+              <kbd>⌘K</kbd>
+            </div>
+            <div class="filter-grid">
+              <label><span>graduation cohort</span><select id="decade-filter"><option value="all">all cohorts</option></select></label>
+              <label><span>industry</span><select id="industry-filter"><option value="all">all industries</option></select></label>
+              <label><span>company status</span><select id="status-filter"><option value="all">all statuses</option></select></label>
+              <label><span>financing</span><select id="venture-filter"><option value="all">all models</option></select></label>
+              <label><span>sort</span><select id="sort-filter"></select></label>
+            </div>
+            <button class="clear-button" id="clear-filters">clear filters</button>
+            <div class="confidence-note"><b>3–5</b><p>Only verified, strong, and probable records appear here. Unresolved leads stay outside the public explorer.</p></div>
+          </aside>
+
+          <div class="results-panel">
+            <div class="results-toolbar"><p id="result-count" aria-live="polite">loading the archive…</p><span>select a record for evidence</span></div>
+            <div id="results" class="results-list" aria-busy="true"></div>
+            <div id="empty-state" class="empty-state" hidden><span>∅</span><h3>nothing matched</h3><p>Try removing a filter or using a broader search.</p><button data-reset>reset the database</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="methodology shell" id="methodology">
+        <div><p class="kicker">methodology</p><h2>recall first.<br />precision before publishing.</h2></div>
+        <div class="method-body">
+          <p>Each published relationship needs one credible source tying the person to TJHSST and another confirming genuine founder or co-founder status. Early employees, hired executives, and people from other Thomas Jefferson high schools are excluded.</p>
+          <div class="method-grid">
+            <article><span>01</span><h3>discover</h3><p>School archives, founder directories, accelerators, universities, and alumni network traversal.</p></article>
+            <article><span>02</span><h3>verify</h3><p>Company bios, personal sites, filings, school publications, and reputable reporting.</p></article>
+            <article><span>03</span><h3>preserve uncertainty</h3><p>Unknown stays unknown. Weak leads and false positives are documented outside the verified table.</p></article>
+          </div>
+          <a class="text-link" href="./downloads/tjhsst_founders.xlsx">open the full evidence workbook ↗</a>
+        </div>
+      </section>
+
+      <section class="downloads shell">
+        <div><p class="kicker">take the data</p><h2>built to be reused</h2><p>The flat file has one row per founder–company pair. The workbook includes summaries, sources, discovery paths, unresolved leads, and rejected candidates.</p></div>
+        <div class="download-list">
+          <a href="./downloads/tjhsst_founders.csv" download><span>CSV</span><small>flat database</small><b>↓</b></a>
+          <a href="./downloads/tjhsst_founders.xlsx" download><span>XLSX</span><small>research workbook</small><b>↓</b></a>
+          <a href="./downloads/tjhsst_founders.json" download><span>JSON</span><small>structured export</small><b>↓</b></a>
+          <a href="./downloads/tjhsst_founders.sqlite" download><span>SQLite</span><small>relational database</small><b>↓</b></a>
+        </div>
+      </section>
+
+      <section class="caveat shell"><p>This is a public-source research snapshot, not an official TJHSST alumni roster. Private financing, company status, and professional roles can change. Corrections and stronger primary sources are welcome.</p><a href="mailto:nayel@nayelr.com?subject=TJ%20Founder%20Atlas%20correction">suggest a correction</a></section>
+    </main>
+
+    <footer class="site-footer shell"><a href="/">nayelr.com</a><span>tj founder atlas · 2026</span></footer>
+    <dialog id="detail-dialog"><div class="dialog-shell"><button id="dialog-close" aria-label="Close details">×</button><div id="detail-content"></div></div></dialog>
+    <div id="load-error" class="load-error" hidden><strong>the database couldn’t load.</strong><span>Refresh the page or download the workbook.</span></div>
+  </body>
+</html>
