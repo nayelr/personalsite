@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TJ Founder Atlas — nayel rehman</title>
-    <meta name="description" content="A source-backed database of founders and companies connected to Thomas Jefferson High School for Science and Technology." />
+    <title>TJ Network Atlas — nayel rehman</title>
+    <meta name="description" content="A searchable, source-aware directory of founders, leaders, and organizations connected to Thomas Jefferson High School for Science and Technology." />
     <meta name="theme-color" content="#e8e4dc" />
     <link rel="icon" href="/public/favicon.ico" type="image/x-icon" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -15,38 +15,40 @@
     <a class="skip-link" href="#explore">skip to the database</a>
     <header class="site-header shell">
       <a class="wordmark" href="/">nayel rehman</a>
-      <span class="header-meta"><i></i>public research project</span>
+        <nav class="header-nav" aria-label="Page navigation"><a href="#explore">directory</a><a href="#methodology">method</a></nav>
+        <span class="header-meta"><i></i>living research project</span>
     </header>
 
     <main>
       <section class="hero shell">
         <p class="eyebrow">thomas jefferson high school for science and technology</p>
-        <h1>the tj founder atlas</h1>
-        <p class="hero-copy">A source-backed map of the companies, nonprofits, and investment firms founded by TJ alumni—from early internet companies to the newest AI startups.</p>
+        <h1>the tj network atlas</h1>
+        <p class="hero-copy">A living map of the founders, builders, investors, executives, and organizations shaped by Thomas Jefferson High School for Science and Technology.</p>
         <div class="hero-actions">
           <a class="primary-link" href="#explore">explore the database <span>↓</span></a>
-          <a class="text-link" href="#methodology">read the methodology</a>
+          <a class="text-link" href="#methodology">how the evidence works</a>
         </div>
         <p class="research-date" id="research-date">researched through september 2026</p>
       </section>
 
       <section class="stats shell" aria-label="Database overview">
-        <article><strong id="founder-stat">—</strong><span>verified founders</span></article>
-        <article><strong id="company-stat">—</strong><span>organizations</span></article>
-        <article><strong id="relationship-stat">—</strong><span>founder–company links</span></article>
-        <article><strong id="funding-stat">—</strong><span>captured disclosed funding</span></article>
+        <article><strong id="people-stat">—</strong><span>people in the directory</span></article>
+        <article><strong id="founder-stat">—</strong><span>research-grade founders</span></article>
+        <article><strong id="company-stat">—</strong><span>organizations mapped</span></article>
+        <article><strong id="relationship-stat">—</strong><span>verified founder–company links</span></article>
       </section>
 
       <section class="explorer shell" id="explore">
         <div class="section-heading">
-          <div><p class="kicker">the database</p><h2>follow the network</h2></div>
-          <p>Search every verified relationship, or narrow the list by class, industry, status, and financing model.</p>
+          <div><p class="kicker">the directory</p><h2>follow the network</h2></div>
+          <p>Browse every profile in one place. Research-grade founder records and broader professional-directory profiles stay visibly distinct.</p>
         </div>
 
         <div class="view-switcher" role="tablist" aria-label="Database view">
-          <button class="active" data-view="founders" role="tab" aria-selected="true">founders</button>
-          <button data-view="companies" role="tab" aria-selected="false">companies</button>
-          <button data-view="records" role="tab" aria-selected="false">all records</button>
+          <button class="active" data-view="people" role="tab" aria-selected="true">people</button>
+          <button data-view="organizations" role="tab" aria-selected="false">organizations</button>
+          <button data-view="founders" role="tab" aria-selected="false">verified founders</button>
+          <button data-view="records" role="tab" aria-selected="false">founder records</button>
         </div>
 
         <div class="database-layout">
@@ -54,10 +56,12 @@
             <label class="field-label" for="search-input">search</label>
             <div class="search-field">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.4-3.4"></path></svg>
-              <input id="search-input" type="search" autocomplete="off" placeholder="name, company, school…" />
+              <input id="search-input" type="search" autocomplete="off" placeholder="name, company, title, school…" />
               <kbd>⌘K</kbd>
             </div>
             <div class="filter-grid">
+              <label><span>profile type</span><select id="type-filter"><option value="all">all people</option></select></label>
+              <label><span>research status</span><select id="tier-filter"><option value="all">all evidence levels</option></select></label>
               <label><span>graduation cohort</span><select id="decade-filter"><option value="all">all cohorts</option></select></label>
               <label><span>industry</span><select id="industry-filter"><option value="all">all industries</option></select></label>
               <label><span>company status</span><select id="status-filter"><option value="all">all statuses</option></select></label>
@@ -65,7 +69,7 @@
               <label><span>sort</span><select id="sort-filter"></select></label>
             </div>
             <button class="clear-button" id="clear-filters">clear filters</button>
-            <div class="confidence-note"><b>3–5</b><p>Only verified, strong, and probable records appear here. Unresolved leads stay outside the public explorer.</p></div>
+            <div class="confidence-note" id="confidence-note"><b>2×</b><p>Two evidence layers: research-grade founder records and a broader professional directory. Every card names its layer.</p></div>
           </aside>
 
           <div class="results-panel">
@@ -79,11 +83,11 @@
       <section class="methodology shell" id="methodology">
         <div><p class="kicker">methodology</p><h2>recall first.<br />precision before publishing.</h2></div>
         <div class="method-body">
-          <p>Each published relationship needs one credible source tying the person to TJHSST and another confirming genuine founder or co-founder status. Early employees, hired executives, and people from other Thomas Jefferson high schools are excluded.</p>
+          <p>The atlas now has two clearly labeled layers. Research-grade founder relationships require evidence for both TJHSST attendance and genuine founder status. The broader people directory preserves professional profiles from the supplied alumni workbook without silently promoting executives or founding employees into founders.</p>
           <div class="method-grid">
-            <article><span>01</span><h3>discover</h3><p>School archives, founder directories, accelerators, universities, and alumni network traversal.</p></article>
-            <article><span>02</span><h3>verify</h3><p>Company bios, personal sites, filings, school publications, and reputable reporting.</p></article>
-            <article><span>03</span><h3>preserve uncertainty</h3><p>Unknown stays unknown. Weak leads and false positives are documented outside the verified table.</p></article>
+            <article><span>01</span><h3>collect</h3><p>School archives, company pages, accelerators, universities, network traversal, and the supplied alumni workbook.</p></article>
+            <article><span>02</span><h3>separate</h3><p>Founders, founding-team members, investors, owners, and hired executives retain their actual role labels.</p></article>
+            <article><span>03</span><h3>show uncertainty</h3><p>Unknown stays unknown. A bad two-digit year is removed; partial-name leads and research-grade profiles never look identical.</p></article>
           </div>
           <a class="text-link" href="#explore">view every verified record ↑</a>
         </div>
@@ -93,16 +97,16 @@
         <div><p class="kicker">research coverage</p><h2>the trail stays visible</h2><p>Every published record opens into its school evidence, founder evidence, company facts, sources, and discovery provenance. Nothing requires a download.</p></div>
         <div class="coverage-grid">
           <article><strong id="source-stat">—</strong><span>public sources logged</span></article>
-          <article><strong id="lead-stat">—</strong><span>unresolved leads kept separate</span></article>
-          <article><strong id="rejected-stat">—</strong><span>false positives documented</span></article>
+          <article><strong id="profile-stat">—</strong><span>professional profiles added</span></article>
+          <article><strong id="lead-stat">—</strong><span>partial-name leads clearly labeled</span></article>
           <article><strong id="network-stat">—</strong><span>founders found through network expansion</span></article>
         </div>
       </section>
 
-      <section class="caveat shell"><p>This is a public-source research snapshot, not an official TJHSST alumni roster. Private financing, company status, and professional roles can change. Corrections and stronger primary sources are welcome.</p><a href="mailto:nayel@nayelr.com?subject=TJ%20Founder%20Atlas%20correction">suggest a correction</a></section>
+      <section class="caveat shell"><p>This is a public-source research snapshot, not an official TJHSST alumni roster. The supplied directory’s repeated “26” graduation-year value was treated as a placeholder and removed. Roles, financing, and company status can change.</p><a href="mailto:nayel@nayelr.com?subject=TJ%20Network%20Atlas%20correction">suggest a correction</a></section>
     </main>
 
-    <footer class="site-footer shell"><a href="/">nayelr.com</a><span>tj founder atlas · 2026</span></footer>
+    <footer class="site-footer shell"><a href="/">nayelr.com</a><span>tj network atlas · 2026</span></footer>
     <dialog id="detail-dialog"><div class="dialog-shell"><button id="dialog-close" aria-label="Close details">×</button><div id="detail-content"></div></div></dialog>
     <div id="load-error" class="load-error" hidden><strong>the database couldn’t load.</strong><span>Refresh the page and try again.</span></div>
   </body>
