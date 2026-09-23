@@ -32,6 +32,10 @@
       "dest": "/tj/index.html"
     },
     {
+      "src": "/evals/?",
+      "dest": "/evals/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
