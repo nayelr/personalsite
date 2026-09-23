@@ -2,9 +2,6 @@
   'use strict';
   const stage = document.getElementById('epsilon-stage');
   const output = document.getElementById('epsilon');
-  const toggle = document.getElementById('motion');
-  const label = document.getElementById('motion-label');
-  const icon = document.getElementById('motion-icon');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let paused = reducedMotion.matches;
   let visible = true;
@@ -78,14 +75,7 @@
     output.style.lineHeight = lineHeight+'px';
     render();
   }
-  function syncToggle() {
-    label.textContent = paused ? 'Play' : 'Pause';
-    icon.textContent = paused ? '▷' : 'Ⅱ';
-    toggle.setAttribute('aria-pressed', String(paused));
-    toggle.setAttribute('aria-label', (paused ? 'Play' : 'Pause')+' epsilon rotation');
-  }
-  toggle.addEventListener('click', () => {paused = !paused; syncToggle();});
-  reducedMotion.addEventListener('change', event => {paused=event.matches;syncToggle();});
+  reducedMotion.addEventListener('change', event => {paused=event.matches;});
   new ResizeObserver(resize).observe(stage);
   new IntersectionObserver(entries => {visible=entries[0].isIntersecting;}).observe(stage);
   function frame(time) {
@@ -96,5 +86,5 @@
     }
     requestAnimationFrame(frame);
   }
-  syncToggle();resize();requestAnimationFrame(frame);
+  resize();requestAnimationFrame(frame);
 })();
