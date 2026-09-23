@@ -9,6 +9,9 @@
   let lastFrame = 0;
   let cols = 96;
   let rows = 65;
+  let animationFrame = null;
+  let buffer;
+  let cells;
   const samples = [];
 
   // Sample the epsilon glyph and extrude it into a shallow solid.
@@ -30,7 +33,9 @@
   for (let y = minY; y <= maxY; y += 1) for (let x = minX; x <= maxX; x += 1) {
     if (!solid(x,y)) continue;
     const px = (x - cx) * scale, py = (y - cy) * scale;
-    samples.push([px, py, .18, 0, 0, 1], [px, py, -.18, 0, 0, -1]);
+    if (x % 2 === 0 && y % 2 === 0) {
+      samples.push([px, py, .18, 0, 0, 1], [px, py, -.18, 0, 0, -1]);
+    }
     const nx = Number(solid(x-1,y)) - Number(solid(x+1,y));
     const ny = Number(solid(x,y-1)) - Number(solid(x,y+1));
     if (nx || ny) {
@@ -40,8 +45,8 @@
   }
 
   function render() {
-    const buffer = new Float32Array(cols * rows).fill(-Infinity);
-    const cells = new Array(cols * rows).fill(' ');
+    buffer.fill(-Infinity);
+    cells.fill(' ');
     const sin = Math.sin(angle), cos = Math.cos(angle);
     const tilt = -.10, ct = Math.cos(tilt), st = Math.sin(tilt);
     const shades = '.:-=+*#%@';
@@ -71,20 +76,29 @@
     const lineHeight = fontSize * 1.16;
     cols = Math.floor(width/(fontSize*.602));
     rows = Math.floor(height/lineHeight);
+    buffer = new Float32Array(cols * rows);
+    cells = new Array(cols * rows);
     output.style.fontSize = fontSize+'px';
     output.style.lineHeight = lineHeight+'px';
     render();
   }
-  reducedMotion.addEventListener('change', event => {paused=event.matches;});
+  function syncAnimation() {
+    if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+    lastFrame = 0;
+    if (!paused && visible && !document.hidden) animationFrame = requestAnimationFrame(frame);
+  }
+  reducedMotion.addEventListener('change', event => {paused=event.matches;syncAnimation();});
+  document.addEventListener('visibilitychange', syncAnimation);
   new ResizeObserver(resize).observe(stage);
-  new IntersectionObserver(entries => {visible=entries[0].isIntersecting;}).observe(stage);
+  new IntersectionObserver(entries => {visible=entries[0].isIntersecting;syncAnimation();}).observe(stage);
   function frame(time) {
-    if (time-lastFrame>=45) {
+    if (time-lastFrame>=50) {
       const elapsed = Math.min(time-lastFrame,100);
       lastFrame=time;
       if (!paused && visible && !document.hidden) {angle+=elapsed*.00028;render();}
     }
-    requestAnimationFrame(frame);
+    animationFrame = requestAnimationFrame(frame);
   }
-  resize();requestAnimationFrame(frame);
+  resize();syncAnimation();
 })();
