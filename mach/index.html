@@ -69,11 +69,14 @@
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.65fr);
-        gap: clamp(36px, 8vw, 108px);
-        padding: clamp(78px, 11vw, 142px) 0 84px;
+        grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.62fr);
+        align-items: end;
+        gap: clamp(42px, 7vw, 92px);
+        padding: clamp(62px, 8vw, 104px) 0 74px;
         border-bottom: 1px solid var(--line);
       }
+
+      .hero-main { min-width: 0; }
 
       .eyebrow,
       .section-kicker,
@@ -90,7 +93,7 @@
       h1 {
         max-width: 770px;
         margin: 0;
-        font-size: clamp(3.3rem, 7.3vw, 6.7rem);
+        font-size: clamp(3.3rem, 6.8vw, 6.15rem);
         font-weight: 500;
         letter-spacing: -0.045em;
         line-height: 0.91;
@@ -99,11 +102,44 @@
       h1 em { color: var(--blue); font-weight: 400; }
 
       .hero-copy {
-        align-self: end;
-        padding-bottom: 5px;
+        max-width: 560px;
+        margin-top: clamp(30px, 4vw, 48px);
       }
 
       .hero-copy p { margin: 0 0 24px; font-size: 1.2rem; line-height: 1.45; }
+
+      .hero-portrait {
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: var(--paper-deep);
+        box-shadow: 14px 14px 0 rgba(91, 137, 201, 0.18);
+      }
+
+      .hero-portrait img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        filter: saturate(0.9) contrast(0.98);
+      }
+
+      .hero-portrait figcaption {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-family: var(--sans);
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .hero-portrait figcaption span:last-child { color: var(--blue); text-align: right; }
 
       .facts {
         display: grid;
@@ -204,6 +240,7 @@
         .hero, .section-head, .why { grid-template-columns: 1fr; }
         .hero { padding: 68px 0 56px; gap: 42px; }
         h1 { font-size: clamp(3.4rem, 15vw, 5.4rem); }
+        .hero-portrait { width: min(100%, 470px); box-shadow: 9px 9px 0 rgba(91, 137, 201, 0.18); }
         .facts { grid-template-columns: 1fr; }
         .fact, .fact + .fact { padding: 18px 0; border-left: 0; }
         .fact + .fact { border-top: 1px solid var(--line); }
@@ -231,17 +268,28 @@
 
       <main>
         <section class="hero">
-          <div>
+          <div class="hero-main">
             <p class="eyebrow">mission → hardware → scale</p>
             <h1>i'm built for the company mach is <em>becoming.</em></h1>
+            <div class="hero-copy">
+              <p>
+                Mach is collapsing the distance between an idea, a test article, a factory, and the
+                field. That is already how I think and build.
+              </p>
+              <a href="#proof">why the fit is unusually strong ↓</a>
+            </div>
           </div>
-          <div class="hero-copy">
-            <p>
-              Mach is collapsing the distance between an idea, a test article, a factory, and the
-              field. That is already how I think and build.
-            </p>
-            <a href="#proof">why the fit is unusually strong ↓</a>
-          </div>
+          <figure class="hero-portrait">
+            <img
+              src="/mach/assets/nayel-mach-portrait.png"
+              alt="Illustration of Nayel wearing a Mach cap on an aerospace manufacturing floor"
+              width="1120"
+              height="1400"
+              loading="eager"
+              fetchpriority="high"
+            />
+            <figcaption><span>candidate visual / 01</span><span>nayel at forge</span></figcaption>
+          </figure>
         </section>
 
         <div class="facts" aria-label="Candidate facts">
