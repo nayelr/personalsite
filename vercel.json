@@ -12,6 +12,16 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "mach.nayelr.com"
+        }
+      ],
+      "dest": "/mach/index.html"
+    },
+    {
       "src": "/api/sleep",
       "dest": "/api/sleep.js"
     },
