@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "rainmaker.nayelr.com"
+        }
+      ],
+      "dest": "/rainmaker/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "mach.nayelr.com"
         }
       ],
