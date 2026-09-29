@@ -155,7 +155,7 @@
       .bio {
         font-size: 1.3rem;
         line-height: 1.6;
-        margin-bottom: 3rem;
+        margin-bottom: 1.75rem;
         font-weight: 400;
       }
 
@@ -177,6 +177,44 @@
       .social-links {
         display: flex;
         gap: 1.5rem;
+      }
+
+      .reading-shelf {
+        width: min(100%, 31rem);
+        margin: 0 0 2rem;
+        padding: 0.75rem 0;
+        border-top: 1px solid rgba(42, 42, 42, 0.14);
+        border-bottom: 1px solid rgba(42, 42, 42, 0.14);
+      }
+
+      .reading-item {
+        display: grid;
+        grid-template-columns: 7.2rem minmax(0, 1fr);
+        gap: 1rem;
+        align-items: baseline;
+        padding: 0.2rem 0;
+      }
+
+      .reading-label {
+        color: #8c8374;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        line-height: 1.4;
+        text-transform: uppercase;
+      }
+
+      .reading-book {
+        color: #3b3935;
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+
+      .reading-book cite {
+        font-style: italic;
+      }
+
+      .reading-author {
+        color: #777065;
       }
 
       .social-links a {
@@ -360,8 +398,19 @@
         }
 
         .social-links {
-          order: 5;
+          order: 6;
           margin-bottom: 1rem;
+        }
+
+        .reading-shelf {
+          order: 5;
+          width: 100%;
+          margin-bottom: 1.75rem;
+        }
+
+        .reading-item {
+          grid-template-columns: 7.25rem minmax(0, 1fr);
+          gap: 0.75rem;
         }
 
         .image-container img {
@@ -503,6 +552,23 @@
             </a>
           </p>
         </div>
+
+        <aside class="reading-shelf" aria-label="Reading list">
+          <div class="reading-item">
+            <span class="reading-label">currently reading</span>
+            <span class="reading-book"
+              ><cite>mobilize</cite>
+              <span class="reading-author">&nbsp;by shyam sankar</span></span
+            >
+          </div>
+          <div class="reading-item">
+            <span class="reading-label">last read</span>
+            <span class="reading-book"
+              ><cite>kitchen confidential</cite>
+              <span class="reading-author">&nbsp;by anthony bourdain</span></span
+            >
+          </div>
+        </aside>
 
         <div class="social-links">
           <a
