@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "networkocean.nayelr.com"
+        }
+      ],
+      "dest": "/networkocean/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "rainmaker.nayelr.com"
         }
       ],
