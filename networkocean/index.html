@@ -188,6 +188,38 @@
       .fit-card h3 { margin: 54px 0 16px; font-size: 2rem; font-weight: 500; line-height: 1; }
       .fit-card p { margin: 0; color: var(--mist); }
 
+      .maritime-proof {
+        margin: 0 0 34px;
+        border: 1px solid var(--light-line);
+        background: var(--deep-soft);
+      }
+
+      .maritime-proof img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 3 / 1.65;
+        object-fit: cover;
+        object-position: center 48%;
+      }
+
+      .maritime-proof figcaption {
+        display: grid;
+        grid-template-columns: 0.72fr 1.28fr;
+        gap: 48px;
+        padding: 20px 24px 22px;
+        border-top: 1px solid var(--light-line);
+      }
+
+      .maritime-proof strong {
+        color: var(--yellow);
+        font-family: var(--sans);
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .maritime-proof span { color: var(--mist); }
+
       .evidence {
         display: grid;
         grid-template-columns: 0.92fr 1.08fr;
@@ -238,6 +270,8 @@
         .fit-card { min-height: 0; }
         .fit-card + .fit-card { border-left: 0; border-top: 1px solid var(--light-line); }
         .fit-card h3 { margin-top: 36px; }
+        .maritime-proof img { aspect-ratio: 4 / 3; }
+        .maritime-proof figcaption { grid-template-columns: 1fr; gap: 8px; padding: 18px; }
         .evidence-story { border-right: 0; border-bottom: 1px solid var(--line); }
         .role-list li { grid-template-columns: 1fr; gap: 4px; }
         footer { align-items: flex-start; flex-direction: column; }
@@ -344,6 +378,20 @@
               tested under real constraints, with enough instrumentation to understand failure.
             </p>
           </div>
+
+          <figure class="maritime-proof">
+            <img
+              src="/networkocean/assets/albacore-maritime-hackathon.webp"
+              alt="Nayel and teammates testing a waterborne prototype at Albacore's Maritime Hardware Hackathon"
+              width="1800"
+              height="1200"
+              loading="lazy"
+            />
+            <figcaption>
+              <strong>Albacore's Maritime Hardware Hackathon</strong>
+              <span>Testing a waterborne prototype with my team. Maritime hardware was already a space I wanted to build in.</span>
+            </figcaption>
+          </figure>
 
           <div class="evidence">
             <article class="evidence-story">
