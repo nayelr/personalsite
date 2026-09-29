@@ -180,8 +180,8 @@
       }
 
       .reading-shelf {
-        width: 100%;
-        margin: 0.9rem 0 0;
+        width: min(100%, 31rem);
+        margin: 0 0 2rem;
         padding: 0.75rem 0;
         border-top: 1px solid rgba(42, 42, 42, 0.14);
         border-bottom: 1px solid rgba(42, 42, 42, 0.14);
@@ -213,20 +213,8 @@
         font-style: italic;
       }
 
-      .reading-book a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .reading-book a:hover {
-        color: #5b89c9;
-        text-decoration: underline;
-        text-underline-offset: 0.16em;
-      }
-
       .reading-author {
         color: #777065;
-        margin-left: 0.18em;
       }
 
       .social-links a {
@@ -353,17 +341,6 @@
         white-space: nowrap;
       }
 
-      @media (min-width: 769px) {
-        body {
-          overflow-y: hidden;
-        }
-
-        .main-container {
-          height: 100vh;
-          min-height: 0;
-        }
-      }
-
       /* Mobile styles */
       @media (max-width: 768px) {
         .main-container {
@@ -421,13 +398,14 @@
         }
 
         .social-links {
-          order: 5;
+          order: 6;
           margin-bottom: 1rem;
         }
 
         .reading-shelf {
+          order: 5;
           width: 100%;
-          margin: 1rem 0 0;
+          margin-bottom: 1.75rem;
         }
 
         .reading-item {
@@ -575,6 +553,23 @@
           </p>
         </div>
 
+        <aside class="reading-shelf" aria-label="Reading list">
+          <div class="reading-item">
+            <span class="reading-label">currently reading</span>
+            <span class="reading-book"
+              ><cite>mobilize</cite>
+              <span class="reading-author">&nbsp;by shyam sankar</span></span
+            >
+          </div>
+          <div class="reading-item">
+            <span class="reading-label">last read</span>
+            <span class="reading-book"
+              ><cite>kitchen confidential</cite>
+              <span class="reading-author">&nbsp;by anthony bourdain</span></span
+            >
+          </div>
+        </aside>
+
         <div class="social-links">
           <a
             href="https://www.instagram.com/nayelrmn/"
@@ -691,30 +686,6 @@
           last night, i slept for <span></span><br />
           7 day average: <span></span>
         </p>
-        <aside class="reading-shelf" aria-label="Reading list">
-          <div class="reading-item">
-            <span class="reading-label">currently reading</span>
-            <span class="reading-book"
-              ><a
-                href="https://www.amazon.com/dp/9798895655160"
-                target="_blank"
-                rel="noopener"
-                ><cite>mobilize</cite></a
-              ><span class="reading-author">by shyam sankar</span></span
-            >
-          </div>
-          <div class="reading-item">
-            <span class="reading-label">last read</span>
-            <span class="reading-book"
-              ><a
-                href="https://www.amazon.com/dp/0060899220"
-                target="_blank"
-                rel="noopener"
-                ><cite>kitchen confidential</cite></a
-              ><span class="reading-author">by anthony bourdain</span></span
-            >
-          </div>
-        </aside>
       </div>
     </main>
 
