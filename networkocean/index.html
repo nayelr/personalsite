@@ -53,23 +53,8 @@
         min-height: 100svh;
         margin: 0 auto;
         display: grid;
-        grid-template-rows: auto 1fr auto;
+        grid-template-rows: 1fr auto;
       }
-
-      .topbar {
-        min-height: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        border-bottom: 1px solid var(--line);
-        font: 600 0.68rem/1.35 var(--sans);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      .mark { color: var(--cyan); }
-      .topbar span:last-child { color: var(--mist); text-align: right; }
 
       main {
         display: grid;
@@ -159,8 +144,6 @@
 
       @media (max-width: 820px) {
         .page { width: min(100% - 30px, 680px); }
-        .topbar { min-height: 58px; }
-        .topbar span:last-child { display: none; }
         main { grid-template-columns: 1fr; gap: 40px; padding: 46px 0 52px; }
         h1 { max-width: 620px; font-size: clamp(3.05rem, 13vw, 5.25rem); }
         .portrait { box-shadow: 7px 7px 0 rgba(255, 211, 73, 0.95); }
@@ -179,11 +162,6 @@
   </head>
   <body>
     <div class="page">
-      <header class="topbar">
-        <span class="mark">nayel rehman × networkocean</span>
-        <span>electrical engineering · field hardware</span>
-      </header>
-
       <main>
         <section>
           <p class="eyebrow">UIUC electrical engineer</p>
