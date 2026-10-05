@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "ghost.nayelr.com"
+        }
+      ],
+      "dest": "/ghost/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "ultrasonium.nayelr.com"
         }
       ],
