@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "ultrasonium.nayelr.com"
+        }
+      ],
+      "dest": "/ultrasonium/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "networkocean.nayelr.com"
         }
       ],
