@@ -122,7 +122,11 @@
         main { grid-template-columns: 1fr; gap: 40px; padding: 46px 0 52px; }
         h1 { max-width: 620px; font-size: clamp(3.05rem, 13vw, 5.25rem); }
         .portrait { box-shadow: 7px 7px 0 rgba(255, 211, 73, 0.95); }
-        figure img { height: clamp(240px, 78vw, 390px); object-position: center 32%; }
+        figure img {
+          height: auto;
+          object-fit: contain;
+          object-position: center;
+        }
       }
 
       @media (max-width: 430px) {
