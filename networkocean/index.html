@@ -79,8 +79,7 @@
         padding: 10px 0;
       }
 
-      .eyebrow,
-      .card-label {
+      .eyebrow {
         margin: 0;
         color: var(--sun);
         font: 600 0.69rem/1.4 var(--sans);
@@ -128,46 +127,10 @@
       .ask:hover,
       .ask:focus-visible { color: var(--foam); background: transparent; }
 
-      .brief {
+      .portrait {
         overflow: hidden;
         border: 1px solid var(--line);
-        background: rgba(244, 248, 248, 0.9);
         box-shadow: 10px 10px 0 rgba(255, 211, 73, 0.95);
-      }
-
-      .brief-copy { padding: 14px 20px 10px; }
-
-      .brief h2 {
-        margin: 5px 0 9px;
-        font-size: 1.72rem;
-        font-weight: 500;
-        line-height: 1;
-      }
-
-      .brief ol {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        counter-reset: work;
-        border-top: 1px solid var(--line);
-      }
-
-      .brief li {
-        counter-increment: work;
-        display: grid;
-        grid-template-columns: 28px 1fr;
-        gap: 10px;
-        padding: 6px 0;
-        border-bottom: 1px solid var(--line);
-        color: var(--mist);
-        font: 500 0.8rem/1.35 var(--sans);
-      }
-
-      .brief li::before {
-        content: "0" counter(work);
-        color: var(--cyan);
-        font-size: 0.68rem;
-        letter-spacing: 0.08em;
       }
 
       figure { margin: 0; }
@@ -175,19 +138,10 @@
       figure img {
         display: block;
         width: 100%;
-        height: clamp(280px, 37vh, 315px);
+        height: clamp(400px, 60vh, 520px);
         object-fit: cover;
         object-position: center 32%;
       }
-
-      figcaption {
-        padding: 6px 20px 8px;
-        color: var(--mist);
-        background: rgba(232, 241, 241, 0.92);
-        font: 500 0.68rem/1.35 var(--sans);
-      }
-
-      figcaption strong { color: var(--foam); font-weight: 600; }
 
       footer {
         display: flex;
@@ -209,7 +163,7 @@
         .topbar span:last-child { display: none; }
         main { grid-template-columns: 1fr; gap: 40px; padding: 46px 0 52px; }
         h1 { max-width: 620px; font-size: clamp(3.05rem, 13vw, 5.25rem); }
-        .brief { box-shadow: 7px 7px 0 rgba(255, 211, 73, 0.95); }
+        .portrait { box-shadow: 7px 7px 0 rgba(255, 211, 73, 0.95); }
         figure img { height: clamp(240px, 78vw, 390px); object-position: center 32%; }
         footer { align-items: flex-start; flex-direction: column; padding: 22px 0 26px; }
         .links a { min-height: 44px; display: inline-flex; align-items: center; }
@@ -217,8 +171,6 @@
 
       @media (max-width: 430px) {
         .lede { font-size: 1.05rem; }
-        .brief-copy { padding: 20px; }
-        figcaption { padding-inline: 20px; }
         .links { flex-wrap: wrap; }
       }
 
@@ -244,25 +196,9 @@
           <a class="ask" href="mailto:founders@networkocean.io?subject=Free%20worker%20%E2%80%94%20I%20built%20this%20for%20NetworkOcean">Let me prove it</a>
         </section>
 
-        <aside class="brief" aria-label="How Nayel can contribute">
-          <div class="brief-copy">
-            <p class="card-label">What I bring</p>
-            <h2>Useful from day one.</h2>
-            <ol>
-              <li>Electrical design, bring-up, sensors, power, and embedded hardware.</li>
-              <li>Test automation, instrumentation, and evaluation systems.</li>
-              <li>Field deployment, failure analysis, and fast iteration.</li>
-            </ol>
-          </div>
-
-          <figure>
-            <img src="/networkocean/assets/nayel-networkocean-portrait.webp" alt="AI illustration of Nayel beside NetworkOcean floating solar and ocean compute infrastructure" width="1120" height="1400" loading="eager" />
-            <figcaption>
-              <strong>Visualized at sea. Proven in the field:</strong> Orchard systems, WiFind
-              rescue hardware, and open-water prototyping at Albacore’s maritime hackathon.
-            </figcaption>
-          </figure>
-        </aside>
+        <figure class="portrait">
+          <img src="/networkocean/assets/nayel-networkocean-portrait.webp" alt="AI illustration of Nayel beside NetworkOcean floating solar and ocean compute infrastructure" width="1120" height="1400" loading="eager" />
+        </figure>
       </main>
 
       <footer>
