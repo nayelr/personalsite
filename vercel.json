@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "power.nayelr.com"
+        }
+      ],
+      "dest": "/power/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "ghost.nayelr.com"
         }
       ],
