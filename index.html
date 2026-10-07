@@ -306,7 +306,7 @@
       .sync-caption {
         display: block;
         margin-top: 0.35rem;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Instrument Serif", serif;
         font-size: 0.68rem;
         line-height: 1.2;
         letter-spacing: 0.015em;
@@ -633,7 +633,7 @@
         <p class="image-caption" id="profile-caption">
           last night, i slept for <span></span><br />
           7 day average: <span></span>
-          <span class="sync-caption">last synced recently via the Fitbit API</span>
+          <span class="sync-caption">last synced recently via the fitbit api</span>
         </p>
       </div>
     </main>
@@ -703,12 +703,14 @@
                 day: "numeric",
                 hour: "numeric",
                 minute: "2-digit",
-              }).format(new Date(event.detail.updatedAt))
+              })
+                .format(new Date(event.detail.updatedAt))
+                .toLowerCase()
             : "recently";
           var syncLine =
             '<span class="sync-caption">last synced ' +
             updatedAt +
-            " via the Fitbit API</span>";
+            " via the fitbit api</span>";
           defaultCaption =
             "last night, i slept for " +
             lastNight +
