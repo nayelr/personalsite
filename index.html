@@ -303,6 +303,16 @@
         white-space: nowrap;
       }
 
+      .sync-caption {
+        display: block;
+        margin-top: 0.35rem;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 0.68rem;
+        line-height: 1.2;
+        letter-spacing: 0.015em;
+        color: #999999;
+      }
+
       /* Mobile styles */
       @media (max-width: 768px) {
         .main-container {
@@ -379,6 +389,10 @@
           padding: 0 1rem;
           font-weight: 400;
           white-space: normal;
+        }
+
+        .sync-caption {
+          font-size: 0.62rem;
         }
 
       }
@@ -619,6 +633,7 @@
         <p class="image-caption" id="profile-caption">
           last night, i slept for <span></span><br />
           7 day average: <span></span>
+          <span class="sync-caption">last synced recently via the Fitbit API</span>
         </p>
       </div>
     </main>
@@ -640,6 +655,7 @@
                 detail: {
                   lastNight: data.lastNight.toLowerCase(),
                   average: data.sevenDayAverage.toLowerCase(),
+                  updatedAt: data.updatedAt,
                 },
               }),
             );
@@ -681,11 +697,24 @@
         window.addEventListener("sleep-update", function (event) {
           var lastNight = event.detail.lastNight;
           var average = event.detail.average;
+          var updatedAt = event.detail.updatedAt
+            ? new Intl.DateTimeFormat("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }).format(new Date(event.detail.updatedAt))
+            : "recently";
+          var syncLine =
+            '<span class="sync-caption">last synced ' +
+            updatedAt +
+            " via the Fitbit API</span>";
           defaultCaption =
             "last night, i slept for " +
             lastNight +
             "<br>7 day average: " +
-            average;
+            average +
+            syncLine;
           clearInterval(captionTypeInterval);
           if (shownSrc !== defaultImg) return;
           if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -694,7 +723,8 @@
           }
           caption.innerHTML =
             'last night, i slept for <span data-sleep-value="last"></span>' +
-            '<br>7 day average: <span data-sleep-value="average"></span>';
+            '<br>7 day average: <span data-sleep-value="average"></span>' +
+            syncLine;
           var lastValue = caption.querySelector('[data-sleep-value="last"]');
           var averageValue = caption.querySelector(
             '[data-sleep-value="average"]',
