@@ -16,6 +16,16 @@
       "has": [
         {
           "type": "host",
+          "value": "amca.nayelr.com"
+        }
+      ],
+      "dest": "/amca/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "power.nayelr.com"
         }
       ],
